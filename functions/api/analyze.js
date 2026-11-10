@@ -40,7 +40,7 @@ const REPORT_SCHEMA = {
         year: nul("integer"),
         engine: { ...nul("string"), description: "Як вказано: об'єм, тип, потужність." },
         fuel: nul("string"),
-        gearbox: { type: ["string", "null"], enum: ["manual", "auto", null] },
+        gearbox: { anyOf: [{ type: "string", enum: ["manual", "auto"] }, { type: "null" }] },
         mileage_km: nul("integer"),
         price: nul("integer"),
         currency: nul("string")
