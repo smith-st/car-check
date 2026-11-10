@@ -9,6 +9,11 @@
     "directory": ".",
     "binding": "ASSETS"
   },
+  // Обмеження кількості аналізів (див. worker/limiter.js)
+  "durable_objects": {
+    "bindings": [{ "name": "LIMITER", "class_name": "RateLimiter" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiter"] }],
   // Не стирати змінні, додані в панелі Cloudflare (наприклад, CLAUDE_MODEL), при кожному деплої
   "keep_vars": true,
   "observability": { "enabled": true }

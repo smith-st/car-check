@@ -2,6 +2,7 @@
 // Статичні файли сайту віддає Cloudflare сам (див. "assets" у wrangler.jsonc);
 // сюди потрапляють лише запити, для яких файлу немає, — тобто /api/*.
 import { onRequestPost, onRequest } from "../functions/api/analyze.js";
+export { RateLimiter } from "./limiter.js";
 
 export default {
   async fetch(request, env, ctx) {

@@ -121,7 +121,6 @@
   }));
 
   // ---------- Посилання / текст оголошення ----------
-  const ALLOWED = ["otomoto.pl", "auto.ria.com", "olx.pl"];
   const listing = $("listing");
   const goLink = $("go-link");
   const setMsg = (text, cls) => { const m = $("url-msg"); m.className = "msg" + (cls ? " " + cls : ""); m.textContent = text; };
@@ -156,17 +155,17 @@
     const text = listing.value.trim();
     let u = null, site = null;
     if (rawUrl) {
-      try { u = new URL(rawUrl); } catch { return setMsg("Вставте коректне посилання.", "err"); }
-      const host = u.hostname.replace(/^www\./, "");
-      site = ALLOWED.find(d => host === d || host.endsWith("." + d));
-      if (!site) return setMsg("Поки що підтримуємо лише otomoto.pl, auto.ria.com та olx.pl.", "err");
+      // Тільки посилання на конкретне оголошення (не список, не пошук, не інший сайт)
+      const check = CarCheckURL.check(rawUrl);
+      if (!check.ok) return setMsg(check.message, "err");
+      u = new URL(rawUrl); site = check.site;
     }
 
     // З текстом — аналіз через Claude
     if (text) {
       goLink.classList.add("loading");
       $("go-link-text").textContent = "Аналізую…";
-      setMsg("Claude читає оголошення, це займає 10–20 секунд…");
+      setMsg("Claude оцінює оголошення, це займає 20–40 секунд…");
       let r;
       try { r = await CarCheckAI.analyze(text, rawUrl); }
       catch (e) { return setMsg(e.message, "err"); }

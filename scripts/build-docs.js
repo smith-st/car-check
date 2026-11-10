@@ -68,15 +68,24 @@ fs.mkdirSync(path.join(root, "docs"), { recursive: true });
 fs.writeFileSync(path.join(root, "docs/korobky.md"), out.join("\n"));
 console.log("docs/korobky.md: " + out.length + " рядків");
 
-// ---------- data/catalog.json ----------
+// ---------- data/knowledge.json ----------
+// Усе, що бекенд передає Claude: список авто + описи двигунів і коробок.
 const catalog = [];
 for (const [make, models] of Object.entries(DB.makes))
   for (const [model, gens] of Object.entries(models))
     for (const g of gens)
       for (const v of g.variants)
         catalog.push({
-          make, model, generation: g.generation, engine: v.label,
-          years: v.years, manual: v.manual.length > 0, auto: v.auto.length > 0
+          make, model, generation: g.generation, engine: v.label, engine_key: v.engine,
+          years: v.years, manual: v.manual, auto: v.auto, note: v.note || null
         });
-fs.writeFileSync(path.join(root, "data/catalog.json"), JSON.stringify(catalog, null, 1) + "\n");
-console.log("data/catalog.json: " + catalog.length + " варіантів");
+const pick = (obj, keys) => Object.fromEntries(Object.entries(obj).map(([k, o]) =>
+  [k, Object.fromEntries(keys.filter(f => o[f] != null).map(f => [f, o[f]]))]));
+const knowledge = {
+  catalog,
+  engines: pick(DB.engines, ["name", "family", "fuel", "timing", "summary", "issues"]),
+  gearboxes: pick(DB.gearboxes, ["name", "kind", "summary", "issues"])
+};
+fs.writeFileSync(path.join(root, "data/knowledge.json"), JSON.stringify(knowledge) + "\n");
+console.log("data/knowledge.json: " + catalog.length + " варіантів, " +
+  Object.keys(knowledge.engines).length + " двигунів, " + Object.keys(knowledge.gearboxes).length + " коробок");
