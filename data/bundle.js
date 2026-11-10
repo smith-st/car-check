@@ -478,6 +478,78 @@ Object.assign(window.CarCheck.engines, {
   }
 });
 
+// ===== data/engines/renault.js =====
+// Двигуни Renault (стоять також у Dacia й частково Nissan): 16V/SCe, TCe, dCi.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.engines, {
+  "ren-16v": {
+    name: "1.2 / 1.4 / 1.6 16V (D4F, K4J, K4M)",
+    family: "Renault D / K",
+    fuel: "Бензин",
+    timing: "ремінь",
+    summary: "Прості атмосферні мотори Clio, Megane й Duster. Невибагливі, добре переносять ГБО.",
+    issues: ["Регламентна заміна ременя ГРМ (обрив гне клапани)", "Котушки запалювання", "Течі оливи, витрата на великих пробігах"]
+  },
+  "ren-sce": {
+    name: "1.0 / 1.6 SCe (H4D, H4M)",
+    family: "Renault-Nissan H",
+    fuel: "Бензин",
+    timing: "ланцюг",
+    summary: "Новіші атмосферні мотори Clio V, Megane IV і Duster II. Прості й економні.",
+    issues: ["1.0 (3 циліндри): вібрації, слабка динаміка", "Мало системних проблем"]
+  },
+  "ren-tce-small": {
+    name: "0.9 / 1.0 TCe (H4Bt, H4Dt)",
+    family: "Renault-Nissan H",
+    fuel: "Бензин, турбо",
+    timing: "ланцюг",
+    summary: "3-циліндрові турбомотори Clio, Captur і Duster. Економні; часто з заводським ГБО (ECO-G).",
+    issues: ["Витрата оливи на частині моторів", "Вібрації на холостих", "Турбіна при поганому обслуговуванні"]
+  },
+  "ren-tce-1.2": {
+    name: "1.2 TCe (H5Ft)",
+    family: "Renault-Nissan H",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Турбомотор 2012–2018 рр. (Megane, Clio, Duster, Qashqai 1.2 DIG-T). Відомий великою витратою оливи; один з найпроблемніших моторів Renault.",
+    issues: [
+      "Велика витрата оливи (кільця) → нагар, руйнування мотора; частину лікували перепрошивкою й ремонтом за гарантією",
+      "Розтягнення ланцюга ГРМ",
+      "Нагар на клапанах"
+    ]
+  },
+  "ren-tce-1.3": {
+    name: "1.3 TCe (H5H, спільний з Mercedes)",
+    family: "Renault-Nissan-Daimler",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Турбомотор з 2017–2018 рр. (Megane IV, Clio V, Duster II, Qashqai J11/J12, Mercedes A/B). Помітно надійніший за 1.2 TCe.",
+    issues: ["Ранні мотори: витрата оливи, пропуски запалювання (оновлення ПЗ)", "Сажовий фільтр GPF у новіших версіях"]
+  },
+  "ren-dci-1.5": {
+    name: "1.5 dCi / Blue dCi (K9K)",
+    family: "Renault K9K",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь",
+    summary: "Найпоширеніший дизель Renault, Dacia й Nissan. Дуже економний; живе довго при хорошій оливі.",
+    issues: [
+      "Провертання шатунних вкладишів (особливо до ~2010 р. і при рідкій заміні оливи)",
+      "Форсунки (Delphi/Continental), паливний насос",
+      "DPF, клапан EGR, двомасовий маховик"
+    ]
+  },
+  "ren-dci-1.6": {
+    name: "1.6 dCi (R9M)",
+    family: "Renault R9M",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Дизель Megane, Qashqai й X-Trail 2011–2018 рр. Тяговий і економний.",
+    issues: ["DPF і клапан EGR при міській їзді", "Турбіна, двомасовий маховик", "Датчики й клапани системи вихлопу"]
+  }
+});
+
 // ===== data/engines/toyota.js =====
 // Двигуни Toyota: VVT-i, Valvematic, Dynamic Force, гібриди, D-4D.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -1240,6 +1312,46 @@ Object.assign(window.CarCheck.gearboxes, {
   }
 });
 
+// ===== data/gearboxes/renault.js =====
+// Автоматичні коробки Renault і Dacia. Старий 4-ступ. автомат DP0 описано в psa.js як «AL4 / DP0».
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.gearboxes, {
+  "REN-EDC6": {
+    name: "Робот EDC-6 (DC4)",
+    type: "auto",
+    kind: "Робот, 6 ступ., «сухе» зчеплення",
+    summary: "Робот Getrag з «сухим» подвійним зчепленням (Clio, Megane, Duster, Captur 2011–2020). Економний, але не любить пробок.",
+    issues: ["Знос подвійного зчеплення й вижимних", "Ривки при рушанні, перегрів у пробках", "Відмова блока керування"],
+    check: ["Рушання плавне, без тремтіння", "Чи міняли зчеплення — з рахунками", "Немає помилок коробки в діагностиці"]
+  },
+  "REN-EDC7": {
+    name: "Робот EDC-7 (7DCT)",
+    type: "auto",
+    kind: "Робот, 7 ступ., «мокре» зчеплення",
+    summary: "Новіший робот для 1.3 TCe і дизелів (Megane IV, Clio V, Duster II, Captur II). Надійніший за EDC-6.",
+    issues: ["Поштовхи на малій швидкості (оновлення ПЗ)", "Без заміни оливи — знос зчеплень"],
+    check: ["Плавне рушання й перемикання", "Чи оновлювали ПЗ коробки"]
+  },
+  "REN-CVT": {
+    name: "Варіатор X-Tronic (Jatco)",
+    type: "auto",
+    kind: "Безступінчастий варіатор з ременем",
+    summary: "Варіатор Jatco у Clio V з 1.0 TCe, Nissan Qashqai та інших. Чутливий до заміни оливи.",
+    issues: ["Гул, вібрації й ривки на великих пробігах", "Перегрів і аварійний режим", "Знос ременя й конусів"],
+    check: ["Розгін плавний, без гулу й ривків", "Історія заміни оливи варіатора (кожні ~60 тис. км)"]
+  },
+  "REN-ETECH": {
+    name: "Гібридна трансмісія E-Tech",
+    type: "auto",
+    kind: "Мультирежимна коробка з електромоторами (без зчеплення)",
+    summary: "Трансмісія гібридів Renault E-Tech (Clio V, Captur, Megane) з 2020 р. Статистики поки мало.",
+    issues: ["Ривки при перемиканні режимів", "Помилки гібридної системи"],
+    check: ["Плавний розгін без ривків", "Немає помилок гібридної системи"]
+  }
+});
+
 // ===== data/gearboxes/toyota.js =====
 // Коробки Toyota: робот MMT, варіатор, гібридна e-CVT, автомат Aisin.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -1578,6 +1690,34 @@ window.CarCheck.makes["Audi"] = {
         { engine: "2.0-tsi",       label: "45 TFSI 2.0 245–265 к.с.",  years: [2018, null], manual: [], auto: ["DL382"] },
         { engine: "2.0-tdi-ea288", label: "40 TDI 2.0 204 к.с.",       years: [2018, null], manual: [], auto: ["DL382"] },
         { engine: "3.0-tdi",       label: "45/50 TDI 3.0 V6 231–286 к.с.", years: [2018, null], manual: [], auto: ["ZF-8HP"] }
+      ]
+    }
+  ]
+};
+
+// ===== data/makes/dacia.js =====
+// Dacia: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни й коробки Renault. Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Dacia"] = {
+  "Duster": [
+    {
+      generation: "I", years: [2010, 2017],
+      variants: [
+        { engine: "ren-16v",     label: "1.6 16V 105–115 к.с.",     years: [2010, 2017], manual: ["MT5", "MT6"], auto: [] },
+        { engine: "ren-tce-1.2", label: "1.2 TCe 125 к.с.",         years: [2013, 2017], manual: ["MT6"], auto: [] },
+        { engine: "ren-dci-1.5", label: "1.5 dCi 86–110 к.с.",      years: [2010, 2017], manual: ["MT5", "MT6"], auto: ["REN-EDC6"],
+          note: "Автомат EDC — з 2016 р." }
+      ]
+    },
+    {
+      generation: "II", years: [2017, 2024],
+      variants: [
+        { engine: "ren-sce",       label: "1.6 SCe 115 к.с.",       years: [2017, 2019], manual: ["MT6"], auto: [] },
+        { engine: "ren-tce-small", label: "1.0 TCe 90–100 к.с. (у т.ч. LPG ECO-G)", years: [2019, 2024], manual: ["MT6"], auto: [] },
+        { engine: "ren-tce-1.3",   label: "1.3 TCe 130–150 к.с.",   years: [2018, 2024], manual: ["MT6"], auto: ["REN-EDC7"] },
+        { engine: "ren-dci-1.5",   label: "1.5 dCi / Blue dCi 95–115 к.с.", years: [2017, 2024], manual: ["MT6"], auto: ["REN-EDC6"] }
       ]
     }
   ]
@@ -1998,6 +2138,138 @@ window.CarCheck.makes["Opel"] = {
           note: "Атмосферна версія PureTech має ланцюг ГРМ — значно надійніша за турбоверсії." },
         { engine: "psa-puretech", label: "1.2 Turbo 100–130 к.с.",       years: [2019, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
         { engine: "psa-dv5",      label: "1.5 Diesel 100 к.с.",          years: [2019, 2022], manual: ["MT6"], auto: [] }
+      ]
+    }
+  ]
+};
+
+// ===== data/makes/peugeot.js =====
+// Peugeot: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни й коробки PSA. Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Peugeot"] = {
+  "308": [
+    {
+      generation: "I (T7)", years: [2007, 2013],
+      variants: [
+        { engine: "psa-thp",  label: "1.4 VTi 95–98 к.с.",          years: [2008, 2013], manual: ["MT5"], auto: [] },
+        { engine: "psa-thp",  label: "1.6 VTi 120 к.с.",            years: [2007, 2013], manual: ["MT5"], auto: ["PSA-AL4"] },
+        { engine: "psa-thp",  label: "1.6 THP 150–200 к.с.",        years: [2007, 2013], manual: ["MT6"], auto: ["PSA-EAT6"],
+          note: "Автомат — 6-ступ. Aisin (AM6), попередник EAT6." },
+        { engine: "psa-dv6",  label: "1.6 HDi 90–112 к.с.",         years: [2007, 2013], manual: ["MT5", "MT6"], auto: ["PSA-ETG"],
+          note: "Робот ETG6 — з 2010 р." },
+        { engine: "psa-dw10", label: "2.0 HDi 136–163 к.с.",        years: [2007, 2013], manual: ["MT6"], auto: ["PSA-EAT6"] }
+      ]
+    },
+    {
+      generation: "II (T9)", years: [2013, 2021],
+      variants: [
+        { engine: "psa-puretech", label: "1.2 PureTech 82 к.с. (атмосферний)", years: [2014, 2021], manual: ["MT5"], auto: [],
+          note: "Атмосферна версія має ланцюг ГРМ — значно надійніша за турбоверсії." },
+        { engine: "psa-puretech", label: "1.2 PureTech 110–130 к.с.", years: [2014, 2021], manual: ["MT5", "MT6"], auto: ["PSA-EAT6", "PSA-EAT8"],
+          note: "Автомат: до ~2019 р. — EAT6, далі — EAT8." },
+        { engine: "psa-thp",  label: "1.6 THP 125–270 к.с.",        years: [2013, 2019], manual: ["MT6"], auto: ["PSA-EAT6"] },
+        { engine: "psa-dv6",  label: "1.6 BlueHDi 100–120 к.с.",    years: [2013, 2018], manual: ["MT5", "MT6"], auto: ["PSA-EAT6"] },
+        { engine: "psa-dv5",  label: "1.5 BlueHDi 100–130 к.с.",    years: [2018, 2021], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-dw10", label: "2.0 BlueHDi 150–180 к.с.",    years: [2013, 2021], manual: ["MT6"], auto: ["PSA-EAT6", "PSA-EAT8"],
+          note: "Автомат: до ~2017 р. — EAT6, далі — EAT8." }
+      ]
+    },
+    {
+      generation: "III (P5)", years: [2021, null],
+      variants: [
+        { engine: "psa-puretech", label: "1.2 PureTech 110–130 к.с.", years: [2021, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-dv5",      label: "1.5 BlueHDi 130 к.с.",      years: [2021, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-phev",     label: "Hybrid 1.6 180–225 к.с. (PHEV)", years: [2021, null], manual: [], auto: ["PSA-EEAT8"] }
+      ]
+    }
+  ],
+
+  "3008": [
+    {
+      generation: "I", years: [2009, 2016],
+      variants: [
+        { engine: "psa-thp",  label: "1.6 VTi 120 к.с.",            years: [2009, 2016], manual: ["MT5"], auto: [] },
+        { engine: "psa-thp",  label: "1.6 THP 150–165 к.с.",        years: [2009, 2016], manual: ["MT6"], auto: ["PSA-EAT6"] },
+        { engine: "psa-dv6",  label: "1.6 HDi / e-HDi 110–115 к.с.", years: [2009, 2016], manual: ["MT6"], auto: ["PSA-ETG"] },
+        { engine: "psa-dw10", label: "2.0 HDi 150–163 к.с.",        years: [2009, 2016], manual: ["MT6"], auto: ["PSA-EAT6"] }
+      ]
+    },
+    {
+      generation: "II", years: [2016, 2023],
+      variants: [
+        { engine: "psa-puretech", label: "1.2 PureTech 130 к.с.",     years: [2016, 2023], manual: ["MT6"], auto: ["PSA-EAT6", "PSA-EAT8"],
+          note: "Автомат: до ~2019 р. — EAT6, далі — EAT8." },
+        { engine: "psa-thp",  label: "1.6 THP 165–180 к.с.",        years: [2016, 2020], manual: [], auto: ["PSA-EAT6", "PSA-EAT8"] },
+        { engine: "psa-dv6",  label: "1.6 BlueHDi 100–120 к.с.",    years: [2016, 2018], manual: ["MT6"], auto: ["PSA-EAT6"] },
+        { engine: "psa-dv5",  label: "1.5 BlueHDi 130 к.с.",        years: [2018, 2023], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-dw10", label: "2.0 BlueHDi 150–180 к.с.",    years: [2016, 2023], manual: ["MT6"], auto: ["PSA-EAT6", "PSA-EAT8"] },
+        { engine: "psa-phev", label: "Hybrid / Hybrid4 225–300 к.с. (PHEV)", years: [2020, 2023], manual: [], auto: ["PSA-EEAT8"] }
+      ]
+    }
+  ]
+};
+
+// ===== data/makes/renault.js =====
+// Renault: моделі → покоління → варіанти (двигун + роки + коробки).
+// Дані попередні, зібрані з відкритих джерел. Потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Renault"] = {
+  "Megane": [
+    {
+      generation: "III", years: [2008, 2016],
+      variants: [
+        { engine: "ren-16v",     label: "1.6 16V 100–110 к.с.",     years: [2008, 2016], manual: ["MT5"], auto: ["PSA-AL4"],
+          note: "Автомат — 4-ступ. DP0 (той самий, що AL4 у Peugeot)." },
+        { engine: "ren-tce-1.2", label: "1.2 TCe 115–130 к.с.",     years: [2012, 2016], manual: ["MT6"], auto: ["REN-EDC6"] },
+        { engine: "ren-dci-1.5", label: "1.5 dCi 86–110 к.с.",      years: [2008, 2016], manual: ["MT5", "MT6"], auto: ["REN-EDC6"],
+          note: "Автомат EDC — з 2011 р." },
+        { engine: "ren-dci-1.6", label: "1.6 dCi 130 к.с.",         years: [2011, 2016], manual: ["MT6"], auto: [] }
+      ]
+    },
+    {
+      generation: "IV", years: [2016, 2023],
+      variants: [
+        { engine: "ren-sce",     label: "1.6 SCe 115 к.с.",         years: [2016, 2019], manual: ["MT5"], auto: [] },
+        { engine: "ren-tce-1.2", label: "1.2 TCe 100–130 к.с.",     years: [2016, 2018], manual: ["MT6"], auto: ["REN-EDC7"] },
+        { engine: "ren-tce-1.3", label: "1.3 TCe 115–160 к.с.",     years: [2018, 2023], manual: ["MT6"], auto: ["REN-EDC7"] },
+        { engine: "ren-dci-1.5", label: "1.5 dCi / Blue dCi 90–115 к.с.", years: [2016, 2023], manual: ["MT6"], auto: ["REN-EDC6", "REN-EDC7"],
+          note: "До ~2018 р. — EDC-6, далі — EDC-7." },
+        { engine: "ren-dci-1.6", label: "1.6 dCi 130–165 к.с.",     years: [2016, 2019], manual: ["MT6"], auto: ["REN-EDC6"] }
+      ]
+    }
+  ],
+
+  "Clio": [
+    {
+      generation: "III", years: [2005, 2012],
+      variants: [
+        { engine: "ren-16v",     label: "1.2 16V 75 к.с.",          years: [2005, 2012], manual: ["MT5"], auto: [] },
+        { engine: "ren-16v",     label: "1.4 / 1.6 16V 98–128 к.с.", years: [2005, 2012], manual: ["MT5"], auto: ["PSA-AL4"],
+          note: "Автомат — 4-ступ. DP0 (той самий, що AL4 у Peugeot)." },
+        { engine: "ren-dci-1.5", label: "1.5 dCi 68–106 к.с.",      years: [2005, 2012], manual: ["MT5", "MT6"], auto: [] }
+      ]
+    },
+    {
+      generation: "IV", years: [2012, 2019],
+      variants: [
+        { engine: "ren-16v",       label: "1.2 16V 73–75 к.с.",     years: [2012, 2019], manual: ["MT5"], auto: [] },
+        { engine: "ren-tce-small", label: "0.9 TCe 90 к.с.",        years: [2012, 2019], manual: ["MT5"], auto: [] },
+        { engine: "ren-tce-1.2",   label: "1.2 TCe 118–120 к.с.",   years: [2013, 2019], manual: [], auto: ["REN-EDC6"] },
+        { engine: "ren-dci-1.5",   label: "1.5 dCi 75–110 к.с.",    years: [2012, 2019], manual: ["MT5", "MT6"], auto: ["REN-EDC6"] }
+      ]
+    },
+    {
+      generation: "V", years: [2019, null],
+      variants: [
+        { engine: "ren-sce",       label: "1.0 SCe 65–75 к.с.",     years: [2019, 2023], manual: ["MT5"], auto: [] },
+        { engine: "ren-tce-small", label: "1.0 TCe 90–100 к.с.",    years: [2019, null], manual: ["MT5", "MT6"], auto: ["REN-CVT"] },
+        { engine: "ren-tce-1.3",   label: "1.3 TCe 130–140 к.с.",   years: [2019, 2021], manual: [], auto: ["REN-EDC7"] },
+        { engine: "ren-sce",       label: "E-Tech Hybrid 1.6 140–145 к.с.", years: [2020, null], manual: [], auto: ["REN-ETECH"],
+          note: "Повний гібрид на основі атмосферного 1.6." },
+        { engine: "ren-dci-1.5",   label: "1.5 Blue dCi 85–115 к.с.", years: [2019, 2022], manual: ["MT6"], auto: [] }
       ]
     }
   ]
