@@ -72,19 +72,34 @@ export async function fetchOtomoto(url, maxChars = 8000) {
   if (a.seller) {
     lines.push(`Sprzedający: ${SELLER[a.seller.type] || a.seller.type || "?"}${a.seller.name ? ` — ${a.seller.name}` : ""}`);
   }
+  // Параметри, що не впливають на оцінку стану, ризиків і ціни, — не передаємо (економія токенів)
+  const SKIP = new Set(["door_count", "nr_seats", "co2_emissions", "urban_consumption", "extra_urban_consumption", "colour_type"]);
   lines.push("", "Parametry:");
-  for (const d of details) if (usable(d.value)) lines.push(`- ${d.label}: ${d.value}`);
+  for (const d of details) if (usable(d.value) && !SKIP.has(d.key)) lines.push(`- ${d.label}: ${d.value}`);
   if (a.verifiedCar) lines.push("- Pojazd zweryfikowany przez Otomoto: Tak");
 
   if (Array.isArray(a.equipment) && a.equipment.length) {
     const eq = a.equipment.flatMap(g => (g.values || []).map(v => v.label)).filter(Boolean);
-    if (eq.length) lines.push("", `Wyposażenie (${eq.length}): ${eq.slice(0, 60).join(", ")}`);
+    if (eq.length) lines.push("", `Wyposażenie (${eq.length}): ${eq.slice(0, 40).join(", ")}${eq.length > 40 ? ", …" : ""}`);
   }
 
   const head = lines.join("\n");
-  const desc = stripHtml(a.description);
+  // Опис продавця лишаємо повністю (у межах ліміту) — прибираємо лише зайві пробіли й повтори рядків
+  const seen = new Set();
+  const desc = stripHtml(a.description).split("\n").map(l => l.replace(/[ \t]+/g, " ").trim())
+    .filter(l => { if (!l) return true; const k = l.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; })
+    .join("\n").replace(/\n{2,}/g, "\n");
   const room = Math.max(500, maxChars - head.length - 20);
   const text = `${head}\n\nOpis:\n${desc.length > room ? desc.slice(0, room) + "…" : desc}`;
 
-  return { ok: true, text, make: get("make"), model: get("model"), title: a.title };
+  // Структуровані дані для підбору версії авто кодом
+  const specs = {
+    make: get("make"), model: get("model"), version: get("version"), generation: get("generation"),
+    year: Number(get("year")) || null,
+    fuel: get("fuel_type"),
+    capacity_cm3: Number((get("engine_capacity") || "").replace(/cm.*$/i, "").replace(/\D/g, "")) || null, // «1 984 cm3» → 1984
+    power_hp: Number((get("engine_power") || "").replace(/km.*$/i, "").replace(/\D/g, "")) || null,    // «190 KM» → 190
+    gearbox: /automat/i.test(get("gearbox") || "") ? "auto" : /manual/i.test(get("gearbox") || "") ? "manual" : null
+  };
+  return { ok: true, text, make: specs.make, model: specs.model, title: a.title, specs };
 }

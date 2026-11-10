@@ -15,6 +15,7 @@
 import { checkListingUrl } from "../../scripts/listing-url.js";
 import { checkRateLimit } from "../../worker/limiter.js";
 import { fetchOtomoto } from "./otomoto.js";
+import { fromSpecs, fromText } from "./match.js";
 import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
@@ -82,17 +83,22 @@ const REPORT_SCHEMA = obj({
 });
 
 // ---------- Інструкції для Claude ----------
-function systemPrompt(K, year) {
+// subset — індекси K.catalog, які передаємо Claude (лише кандидати для цього оголошення).
+// Номери рядків у промпті — 0…n-1 у межах subset; описи — лише двигунів і коробок цих кандидатів.
+function systemPrompt(K, subset, year) {
+  const rows = subset.map(i => K.catalog[i]);
+  const engineKeys = new Set(rows.map(c => c.engine_key));
+  const gearboxKeys = new Set(rows.flatMap(c => [...c.manual, ...c.auto]));
   const gb = c => (K.gearboxes[c] ? `${c} (${K.gearboxes[c].name})` : c);
-  const catalogLines = K.catalog.map((c, i) =>
+  const catalogLines = rows.map((c, i) =>
     `${i} | ${c.make} ${c.model} ${c.generation} | ${c.engine} | ${c.years[0]}–${c.years[1] ?? year} | двигун: ${c.engine_key} | ` +
     `механіка: ${c.manual.map(gb).join(", ") || "—"} | автомат: ${c.auto.map(gb).join(" / ") || "—"}` +
     (c.note ? ` | примітка: ${c.note}` : "")
   ).join("\n");
-  const engineLines = Object.entries(K.engines).map(([k, e]) =>
+  const engineLines = Object.entries(K.engines).filter(([k]) => engineKeys.has(k)).map(([k, e]) =>
     `[${k}] ${e.name} (${[e.family, e.fuel, e.timing && "ГРМ: " + e.timing].filter(Boolean).join(", ")}). ${e.summary || ""} Типові проблеми: ${(e.issues || []).join("; ")}.`
   ).join("\n");
-  const gearboxLines = Object.entries(K.gearboxes).map(([k, g]) =>
+  const gearboxLines = Object.entries(K.gearboxes).filter(([k]) => gearboxKeys.has(k)).map(([k, g]) =>
     `[${k}] ${g.name} — ${g.kind}. ${g.summary || ""} Типові проблеми: ${(g.issues || []).join("; ")}.`
   ).join("\n");
 
@@ -101,7 +107,7 @@ function systemPrompt(K, year) {
 
 Як працювати:
 1. Визнач з оголошення марку, модель, рік, двигун, коробку, пробіг і ціну.
-2. Знайди авто в КАТАЛОЗІ. Обирай рядок, лише якщо марка, модель і покоління збігаються, рік входить у роки рядка, а двигун (об'єм, паливо, потужність) відповідає. Якщо точного збігу немає — catalog_index = null.
+2. Знайди авто в КАТАЛОЗІ. Каталог уже звужено до кандидатів для цього оголошення (часто це один рядок). Обирай рядок, лише якщо марка, модель і покоління збігаються, рік входить у роки рядка, а двигун (об'єм, паливо, потужність) відповідає. Якщо жоден рядок не підходить — catalog_index = null.
 3. Оціни пропозицію в цілому, пов'язуючи оголошення з БАЗОЮ ЗНАНЬ про цей двигун і коробку:
    - ціна: орієнтовний ринковий діапазон для такого авто (рік, пробіг, двигун, коробка, країна продажу) на основі твоїх знань про ринок; якщо даних замало — assessment = unknown і fair_min/fair_max = null;
    - пробіг: правдоподібність для віку (зараз ${year} р.) і типу палива;
@@ -127,7 +133,7 @@ function systemPrompt(K, year) {
 - Пиши українською. Суми — у валюті оголошення.
 - Відповідай лише JSON за заданою схемою.
 
-КАТАЛОГ (номер | марка модель покоління | двигун | роки | ключ двигуна | коробки):
+КАТАЛОГ — кандидати з бази (номер | марка модель покоління | двигун | роки | ключ двигуна | коробки):
 ${catalogLines}
 
 БАЗА ЗНАНЬ — ДВИГУНИ:
@@ -230,7 +236,7 @@ export async function onRequestPost({ request, env }) {
 
   // Лише посилання — завантажуємо оголошення з Otomoto самі.
   // Якщо не вийшло — просимо користувача вставити текст (need_text).
-  let source = "text";
+  let source = "text", specs = null;
   if (!text) {
     const fetched = await fetchOtomoto(url, MAX_TEXT);
     if (!fetched.ok) {
@@ -245,7 +251,23 @@ export async function onRequestPost({ request, env }) {
     if (inDatabase(K, fetched.make, fetched.model, null) === false) return notInDb(fetched.make, fetched.model);
     text = fetched.text;
     source = "otomoto";
+    specs = fetched.specs || null;
   }
+
+  // Підбір кандидатів кодом: Claude отримує лише їх, а не всю базу
+  const pick = specs && specs.make && specs.model ? fromSpecs(K, specs) : fromText(K, text);
+  if (pick.status === "none") {
+    // Модель є в базі, але такої версії (двигун/рік) немає — Claude не потрібен
+    const s = specs || {};
+    return json({
+      is_car_listing: true, match: null, not_in_db: true,
+      listing: {
+        make: s.make || null, model: s.model || null, year: s.year || null,
+        engine: s.version || [s.capacity_cm3 && (Math.round(s.capacity_cm3 / 100) / 10).toFixed(1), s.power_hp && s.power_hp + " KM"].filter(Boolean).join(" ") || null
+      }
+    });
+  }
+  const subset = pick.indices;
 
   let apiRes;
   try {
@@ -259,8 +281,9 @@ export async function onRequestPost({ request, env }) {
       body: JSON.stringify({
         model: env.CLAUDE_MODEL || DEFAULT_MODEL,
         max_tokens: MAX_TOKENS,
-        // Інструкції й база однакові для всіх запитів — кешуємо їх, щоб було дешевше й швидше
-        system: [{ type: "text", text: systemPrompt(K, now), cache_control: { type: "ephemeral" } }],
+        // Без кешування промпту: він короткий і щоразу інший (лише кандидати для цього авто),
+        // а запис у кеш коштує на 25% дорожче звичайного вводу.
+        system: systemPrompt(K, subset, now),
         output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA } },
         messages: [{
           role: "user",
@@ -315,7 +338,7 @@ export async function onRequestPost({ request, env }) {
 
   // Перевіряємо збіг з базою: індекс існує, рік у межах, коробка доступна
   let match = null;
-  const c = Number.isInteger(r.catalog_index) ? K.catalog[r.catalog_index] : null;
+  const c = Number.isInteger(r.catalog_index) && subset[r.catalog_index] != null ? K.catalog[subset[r.catalog_index]] : null;
   if (c) {
     const y = r.listing && r.listing.year;
     const to = c.years[1] ?? now;
