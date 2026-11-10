@@ -11,7 +11,7 @@ window.CarCheck.makes["Mazda"] = {
         { engine: "mzr-z",          label: "1.6 MZR 105 к.с.",       years: [2003, 2009], manual: ["MT5"], auto: ["AT4-MAZDA"] },
         { engine: "mzr-l",          label: "2.0 MZR 150 к.с.",       years: [2003, 2009], manual: ["MT5"], auto: ["AT4-MAZDA"] },
         { engine: "mzr-disi-turbo", label: "MPS 2.3 Turbo 260 к.с.", years: [2006, 2009], manual: ["MT6"], auto: [] },
-        { engine: "mz-cd-1.6",      label: "1.6 MZ-CD 109 к.с.",     years: [2003, 2009], manual: ["MT5"], auto: [] },
+        { engine: "psa-dv6",      label: "1.6 MZ-CD 109 к.с.",     years: [2003, 2009], manual: ["MT5"], auto: [] },
         { engine: "mzr-cd-2.0",     label: "2.0 MZR-CD 143 к.с.",    years: [2006, 2009], manual: ["MT6"], auto: [] }
       ]
     },
@@ -22,7 +22,7 @@ window.CarCheck.makes["Mazda"] = {
         { engine: "mzr-l",          label: "2.0 MZR 150 к.с.",       years: [2009, 2013], manual: ["MT6"], auto: ["AT5-MAZDA"],
           note: "З механікою — версія 2.0 DISI з безпосереднім вприском і start-stop, з автоматом — звичайний 2.0 MZR." },
         { engine: "mzr-disi-turbo", label: "MPS 2.3 Turbo 260 к.с.", years: [2009, 2013], manual: ["MT6"], auto: [] },
-        { engine: "mz-cd-1.6",      label: "1.6 MZ-CD 109–115 к.с.", years: [2009, 2013], manual: ["MT5"], auto: [] },
+        { engine: "psa-dv6",      label: "1.6 MZ-CD 109–115 к.с.", years: [2009, 2013], manual: ["MT5"], auto: [] },
         { engine: "mzr-cd-2.2",     label: "2.2 MZR-CD 150–185 к.с.", years: [2009, 2013], manual: ["MT6"], auto: [] }
       ]
     },

@@ -1,6 +1,7 @@
 # Файли, які не потрібно віддавати як частину сайту
 .git
 .github
+.gitignore
 node_modules
 functions
 worker
@@ -8,4 +9,8 @@ wrangler.jsonc
 .assetsignore
 .wrangler
 *.md
-.gitignore
+# Джерела даних — сайт використовує зібраний data/bundle.js
+data/engines
+data/gearboxes
+data/makes
+scripts/build.js

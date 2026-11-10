@@ -39,10 +39,10 @@
 Після будь-яких змін у `data/` треба оновити згенеровані файли й закомітити їх:
 
 ```
-node scripts/build-docs.js
+node scripts/build.js
 ```
 
-Він оновлює `docs/korobky.md` і `data/knowledge.json` (база, яку бекенд передає Claude).
+Він перевіряє дані й оновлює `data/bundle.js` (дані для сайту), `data/knowledge.json` (база, яку бекенд передає Claude) і `docs/korobky.md`.
 
 ## Захист і витрати
 

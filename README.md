@@ -5,30 +5,31 @@
 ## Структура
 
 ```
-index.html              — головна сторінка: вибір авто, посилання або текст оголошення
-car.html                — сторінка звіту по авто
-scripts/app.js          — логіка головної сторінки
-scripts/car.js          — логіка сторінки авто
-scripts/analysis.js     — виклик /api/analyze і показ аналізу оголошення
+index.html               — головна сторінка: вибір авто або посилання на оголошення Otomoto
+car.html                 — сторінка звіту по авто
+styles/main.css          — стилі обох сторінок
+scripts/app.js           — логіка головної сторінки
+scripts/car.js           — логіка сторінки авто
+scripts/analysis.js      — виклик /api/analyze і показ аналізу оголошення
+scripts/listing-url.js   — перевірка, що посилання веде на конкретне оголошення
+scripts/build.js         — збирання й перевірка даних (див. нижче)
+
+data/engines/            — двигуни за виробником: vag.js, mazda.js, toyota.js, ford.js, psa.js
+data/gearboxes/          — коробки: manual.js (МКПП), vag.js (DSG, 09G), mazda.js, toyota.js, ford.js
+data/makes/              — марки: модель → покоління → двигун → роки → коробки
+data/bundle.js           — усі дані одним файлом для сайту (генерується)
+data/knowledge.json      — база для Claude (генерується)
+docs/korobky.md          — «яка коробка на яких моделях» (генерується)
+
 functions/api/analyze.js — бекенд: аналіз оголошення через Claude
 functions/api/otomoto.js — завантаження й розбір сторінки оголошення Otomoto
-worker/index.js         — точка входу Cloudflare Worker (/api/analyze)
-worker/limiter.js       — обмеження кількості аналізів (Durable Object)
-worker/cache.js         — кеш результатів аналізу на 24 години (Durable Object)
-scripts/listing-url.js  — перевірка, що посилання веде на конкретне оголошення
-wrangler.jsonc          — налаштування Cloudflare Worker
-styles/main.css         — стилі обох сторінок
-data/engines.js         — каталог двигунів: родина, ГРМ, типові проблеми
-data/gearboxes.js       — каталог коробок (MT5, MT6, DQ200, DQ250, DQ381, DQ400E, 09G, АКПП Mazda)
-data/makes/skoda.js     — Škoda: модель → покоління → двигун → роки → коробки
-data/makes/mazda.js     — Mazda: 3, 6, CX-5, CX-30
-data/makes/volkswagen.js — Volkswagen: Golf, Passat, Tiguan
-data/makes/toyota.js    — Toyota: Corolla, Auris, Yaris, RAV4
-data/makes/ford.js      — Ford: Focus
-data/knowledge.json     — база для Claude: список авто, двигуни, коробки (генерується з data/)
-docs/korobky.md         — «яка коробка на яких моделях» (генерується з data/)
-scripts/build-docs.js   — генератор docs/korobky.md і data/knowledge.json
+worker/index.js          — точка входу Cloudflare Worker (/api/analyze)
+worker/limiter.js        — обмеження кількості аналізів (Durable Object)
+worker/cache.js          — кеш результатів аналізу на 24 години (Durable Object)
+wrangler.jsonc           — налаштування Cloudflare Worker
 ```
+
+Двигуни й коробки згруповані за виробником, а не за маркою авто, бо багато з них спільні: 1.4 TSI і DSG стоять і в Škoda, і у Volkswagen, дизель PSA DV6 — у Ford і Mazda. Марка в `data/makes/` лише посилається на двигун і коробку за ключем.
 
 ## Як працює вибір коробки
 
@@ -44,12 +45,15 @@ scripts/build-docs.js   — генератор docs/korobky.md і data/knowledge
 
 ## Як додати дані
 
-- Нова марка: створити `data/makes/<марка>.js` за зразком `skoda.js` і підключити його в `index.html` та `car.html`.
-- Новий двигун чи коробка: додати запис у `data/engines.js` або `data/gearboxes.js`.
-- Після змін даних оновити згенеровані файли: `node scripts/build-docs.js`.
+1. Нова марка — створити `data/makes/<марка>.js` за зразком `skoda.js`.
+2. Новий двигун чи коробка — додати запис у відповідний файл `data/engines/` чи `data/gearboxes/` (або створити новий файл для нового виробника).
+3. Запустити `node scripts/build.js`. Він перевірить дані (неіснуючий двигун чи коробка, роки поза поколінням, дублікати) і, якщо все гаразд, оновить згенеровані файли.
+4. Закомітити все разом, зокрема `data/bundle.js`, `data/knowledge.json` і `docs/korobky.md`.
+
+HTML правити не потрібно: сторінки підключають один файл `data/bundle.js`.
 
 Дані попередні, зібрані з відкритих джерел, і потребують звірки.
 
 ## Версії файлів
 
-У `index.html` і `car.html` до скриптів і стилів додано `?v=…`, щоб після оновлення браузери не брали стару версію з кешу. Після змін у `scripts/`, `data/` чи `styles/` число варто оновити (наприклад, на поточні дату й час).
+До скриптів і стилів в `index.html` і `car.html` додано `?v=…`, щоб після оновлення браузери не брали стару версію з кешу. `scripts/build.js` оновлює це число автоматично. Після змін лише в `scripts/` чи `styles/` теж варто запустити `node scripts/build.js`.
