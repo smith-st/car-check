@@ -145,7 +145,13 @@ export async function onRequestPost({ request, env }) {
   if (!apiRes.ok) {
     const detail = await apiRes.text().catch(() => "");
     console.log("Anthropic API error", apiRes.status, detail.slice(0, 500));
-    return json({ error: "Сервіс аналізу повернув помилку. Спробуйте пізніше." }, 502);
+    // Тип і текст помилки Anthropic (без ключа) — щоб було видно причину: ключ, баланс, модель тощо
+    let info = "";
+    try { const e = JSON.parse(detail).error; info = `${e.type}: ${e.message}`; } catch { info = detail.slice(0, 200); }
+    const hint = apiRes.status === 401 ? " Перевірте ключ API."
+      : /credit|balance|billing/i.test(info) ? " Поповніть баланс у консолі Anthropic."
+      : "";
+    return json({ error: "Сервіс аналізу повернув помилку." + hint, status: apiRes.status, detail: info.slice(0, 300) }, 502);
   }
 
   const data = await apiRes.json();
