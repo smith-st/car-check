@@ -10,7 +10,9 @@ car.html                — сторінка звіту по авто
 scripts/app.js          — логіка головної сторінки
 scripts/car.js          — логіка сторінки авто
 scripts/analysis.js     — виклик /api/analyze і показ аналізу оголошення
-functions/api/analyze.js — бекенд (Cloudflare Pages Function): аналіз оголошення через Claude
+functions/api/analyze.js — бекенд: аналіз оголошення через Claude
+worker/index.js         — точка входу Cloudflare Worker (/api/analyze)
+wrangler.jsonc          — налаштування Cloudflare Worker
 styles/main.css         — стилі обох сторінок
 data/engines.js         — каталог двигунів: родина, ГРМ, типові проблеми
 data/gearboxes.js       — каталог коробок (MT5, MT6, DQ200, DQ250, DQ381, DQ400E, 09G, АКПП Mazda)

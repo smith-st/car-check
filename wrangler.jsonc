@@ -1,0 +1,15 @@
+// Налаштування Cloudflare Worker для Car Check.
+// Сайт — статичні файли з кореня репозиторію, бекенд — worker/index.js (/api/analyze).
+// Секрет ANTHROPIC_API_KEY задається в Cloudflare: Settings → Variables and Secrets.
+{
+  "name": "car-check",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS"
+  },
+  // Не стирати змінні, додані в панелі Cloudflare (наприклад, CLAUDE_MODEL), при кожному деплої
+  "keep_vars": true,
+  "observability": { "enabled": true }
+}

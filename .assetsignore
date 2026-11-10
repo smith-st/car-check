@@ -1,0 +1,10 @@
+# Файли, які не потрібно віддавати як частину сайту
+.git
+.github
+node_modules
+functions
+worker
+wrangler.jsonc
+.assetsignore
+.wrangler
+*.md

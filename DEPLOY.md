@@ -1,40 +1,38 @@
-# Розгортання на Cloudflare Pages
+# Розгортання на Cloudflare
 
-Сайт і бекенд живуть в одному репозиторії. Cloudflare Pages бере код з GitHub і оновлює сайт після кожного пушу в `master`.
+Сайт і бекенд живуть в одному репозиторії й розгортаються як один Cloudflare Worker. Після кожного пушу в `master` Cloudflare сам оновлює сайт.
 
-- Статичні файли (`index.html`, `car.html`, `data/`, `scripts/`, `styles/`) віддаються як є.
-- `functions/api/analyze.js` стає ендпоінтом `POST /api/analyze` (аналіз оголошення через Claude).
+- Статичні файли (`index.html`, `car.html`, `data/`, `scripts/`, `styles/`) віддаються як є (налаштування — `wrangler.jsonc`, виключення — `.assetsignore`).
+- `worker/index.js` обробляє `POST /api/analyze` (аналіз оголошення через Claude); сама логіка — у `functions/api/analyze.js`.
 
 ## 1. Підключити репозиторій
 
-1. Зайти на [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages** → **Create** → вкладка **Pages** → **Connect to Git**.
-2. Дати Cloudflare доступ до GitHub і обрати репозиторій `smith-st/car-check`.
-3. Налаштування збірки:
-   - **Production branch:** `master`
-   - **Framework preset:** `None`
+1. [dash.cloudflare.com](https://dash.cloudflare.com) → **Compute** → **Workers & Pages** → **Create** → імпорт з Git → обрати `smith-st/car-check`.
+2. На кроці **Set up your application**:
+   - **Project name:** `car-check`
    - **Build command:** порожньо
-   - **Build output directory:** `/`
-4. **Save and Deploy**. Після збірки сайт буде доступний за адресою на кшталт `https://car-check.pages.dev`.
+   - **Deploy command:** `npx wrangler deploy` (як є)
+   - **Preview command:** `npx wrangler preview` (як є)
+3. **Deploy**. Після збірки сайт буде доступний за адресою на кшталт `https://car-check.<акаунт>.workers.dev`.
 
 ## 2. Додати ключ Claude API
 
 1. Створити ключ на [console.anthropic.com](https://console.anthropic.com) → **API Keys**. Там же варто встановити місячний ліміт витрат.
-2. У Cloudflare: проєкт `car-check` → **Settings** → **Variables and Secrets** → **Add**:
+2. У Cloudflare: Worker `car-check` → **Settings** → **Variables and Secrets** → **Add**:
    - Type: **Secret**
    - Name: `ANTHROPIC_API_KEY`
    - Value: ключ з консолі
-   - Environment: **Production**
 3. Необов'язково: змінна `CLAUDE_MODEL`, щоб змінити модель (за замовчуванням `claude-sonnet-5-5`; дешевший варіант — `claude-haiku-5-5`).
-4. Секрети діють лише для нових розгортань: **Deployments** → останнє розгортання → **Retry deployment** (або просто зробити новий пуш).
+4. Зберегти (**Deploy**) — секрет починає діяти одразу.
 
-Ключ ніколи не потрапляє в код чи в браузер — його бачить лише функція на сервері Cloudflare.
+Ключ ніколи не потрапляє в код чи в браузер — його бачить лише Worker на сервері Cloudflare.
 
 ## 3. Перевірити
 
 Відкрити сайт → вкладка **«Вставити оголошення»** → вставити текст оголошення → **«Аналізувати»**.
 Якщо авто є в базі, відкриється сторінка авто з блоком **«Аналіз оголошення»**.
 
-Помилки бекенда видно в Cloudflare: проєкт → **Deployments** → розгортання → **Functions** → **Real-time logs**.
+Помилки бекенда видно в Cloudflare: Worker → **Observability** → **Logs**.
 
 ## Після зміни даних
 
