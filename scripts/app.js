@@ -161,7 +161,12 @@
     const has = words => tokens.some((_, i) => words.every((w, k) => tokens[i + k] === w));
     for (const mk of Object.keys(DB.makes)) {
       if (!has(slug(mk).split("-").filter(Boolean))) continue;
-      const md = Object.keys(DB.makes[mk]).find(m => has(slug(m).split("-").filter(Boolean)));
+      const mw = slug(mk).split("-").filter(Boolean);
+      const models = Object.keys(DB.makes[mk]);
+      // Спершу модель одразу після марки (skoda-octavia, mazda-cx-5), інакше — будь-де,
+      // але тільки для довших назв, щоб «3» чи «6» не збігались з цифрами двигуна.
+      const md = models.find(m => has(mw.concat(slug(m).split("-").filter(Boolean)))) ||
+                 models.find(m => slug(m).replace(/-/g, "").length > 2 && has(slug(m).split("-").filter(Boolean)));
       return { make: mk, model: md || null };
     }
     return null;

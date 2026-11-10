@@ -8,8 +8,9 @@
 index.html              — головна сторінка
 scripts/app.js          — логіка форми та звіту
 data/engines.js         — каталог двигунів: родина, ГРМ, типові проблеми
-data/gearboxes.js       — каталог коробок (MT5, MT6, DQ200, DQ250, DQ381, DQ400E, 09G)
+data/gearboxes.js       — каталог коробок (MT5, MT6, DQ200, DQ250, DQ381, DQ400E, 09G, АКПП Mazda)
 data/makes/skoda.js     — Škoda: модель → покоління → двигун → роки → коробки
+data/makes/mazda.js     — Mazda: 3, 6, CX-5, CX-30
 docs/korobky.md         — «яка коробка на яких моделях» (генерується з data/)
 scripts/build-docs.js   — генератор docs/korobky.md
 ```

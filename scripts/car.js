@@ -73,7 +73,7 @@
   // ---------- Головні ризики ----------
   const risks = [
     ...engine.issues.slice(0, 3).map(t => ({ tag: "Двигун", cls: "", t })),
-    ...gbs.flatMap(g => (g.issues || []).slice(0, 2).map(t => ({ tag: g.code.startsWith("MT") ? "Коробка" : g.code, cls: "gb", t })))
+    ...gbs.flatMap(g => (g.issues || []).slice(0, 2).map(t => ({ tag: /^DQ/.test(g.code) ? g.code : "Коробка", cls: "gb", t })))
   ];
 
   // ---------- Інші версії цього покоління ----------
