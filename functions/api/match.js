@@ -40,7 +40,13 @@ const roman = s => (String(s || "").trim().match(/^([IVX]+|B\d)\b/) || [])[1] ||
 // Індекси каталогу для пари марка+модель
 // Порівнюємо без дефісів і пробілів: «cee'd» = «Ceed», «CX 5» = «CX-5», «Seria 3» = «seria-3»
 const compact = s => slugify(s).replace(/-/g, "");
+// Назва моделі з бази для назви з оголошення: «Seria 3» → «3 Series», «Klasa C» → «C-Class»
+export function canonModel(K, make, model) {
+  const al = (K.aliases || {})[compact(make) + "|" + compact(model)];
+  return al ? al[1] : model;
+}
 function modelIndices(K, make, model) {
+  model = canonModel(K, make, model);
   const mk = compact(make), md = compact(model);
   return K.catalog.map((c, i) => i).filter(i => compact(K.catalog[i].make) === mk && compact(K.catalog[i].model) === md);
 }
@@ -86,9 +92,20 @@ export function fromText(K, text) {
   // Модель одразу після марки («skoda octavia», «mazda cx-5»), інакше — назва моделі будь-де (лише довші за 2 символи)
   let pair = pairs.find(c => has([...slugify(c.make).split("-"), ...slugify(c.model).split("-")]));
   if (!pair) pair = pairs.find(c => has(slugify(c.make).split("-")) && slugify(c.model).replace(/-/g, "").length > 2 && has(slugify(c.model).split("-")));
-  if (!pair) return { status: "unknown", indices: K.catalog.map((c, i) => i) };
-
-  let idx = modelIndices(K, pair.make, pair.model);
+  // Псевдоніми: «BMW Seria 3», «Mercedes-Benz Klasa C»
+  if (!pair) {
+    const joined = tokens.join("");
+    const hit = Object.entries(K.aliases || {}).find(([key]) => joined.includes(key.replace("|", "")));
+    if (hit) pair = { make: hit[1][0], model: hit[1][1] };
+  }
+  // Відома лише марка — Claude обирає з її версій (а не з усієї бази)
+  let idx;
+  if (!pair) {
+    const make = [...new Set(K.catalog.map(c => c.make))].find(m => has(slugify(m).split("-")));
+    if (make) idx = K.catalog.map((c, i) => i).filter(i => K.catalog[i].make === make);
+  }
+  if (pair) idx = modelIndices(K, pair.make, pair.model);
+  if (!idx) return { status: "unknown", indices: K.catalog.map((c, i) => i) };
   // Якщо в тексті є рік — лишаємо версії, що випускались у цей рік
   const years = [...String(text).matchAll(/\b(19[89]\d|20[0-3]\d)\b/g)].map(m => Number(m[1])).filter(y => y <= NOW);
   if (years.length) {

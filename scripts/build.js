@@ -88,8 +88,18 @@ for (const [make, models] of Object.entries(DB.makes))
         });
 const pick = (obj, keys) => Object.fromEntries(Object.entries(obj).map(([k, o]) =>
   [k, Object.fromEntries(keys.filter(f => o[f] != null).map(f => [f, o[f]]))]));
+// Інші назви моделей (як на Otomoto): «bmw|seria3» → ["BMW", "3 Series"]
+// Так само, як compact() у functions/api/match.js
+const compact = x => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+const aliases = {};
+for (const [key, names] of Object.entries(DB.aliases || {})) {
+  const [make, model] = key.split("|");
+  if (!DB.makes[make] || !DB.makes[make][model]) { console.error(`Псевдонім «${key}»: немає такої моделі в data/makes/`); process.exit(1); }
+  for (const n of names) aliases[compact(make) + "|" + compact(n)] = [make, model];
+}
 fs.writeFileSync(path.join(root, "data/knowledge.json"), JSON.stringify({
   catalog,
+  aliases,
   engines: pick(DB.engines, ["name", "family", "fuel", "timing", "summary", "issues"]),
   gearboxes: pick(DB.gearboxes, ["name", "kind", "summary", "issues"])
 }) + "\n");

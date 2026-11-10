@@ -15,7 +15,7 @@
 import { checkListingUrl } from "../../scripts/listing-url.js";
 import { checkRateLimit } from "../../worker/limiter.js";
 import { fetchOtomoto } from "./otomoto.js";
-import { fromSpecs, fromText } from "./match.js";
+import { fromSpecs, fromText, canonModel } from "./match.js";
 import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
@@ -157,7 +157,7 @@ function inDatabase(K, make, model, url) {
     const cm = new Set(K.catalog.map(k => c(k.make)));
     const cp = new Set(K.catalog.map(k => c(k.make) + "|" + c(k.model)));
     if (!cm.has(c(make))) return false;
-    if (model) return cp.has(c(make) + "|" + c(model));
+    if (model) return cp.has(c(make) + "|" + c(canonModel(K, make, model)));
     return null;
   }
   // З адреси: otomoto.pl/…/oferta/<марка>-<модель>-…-ID….html
@@ -170,7 +170,9 @@ function inDatabase(K, make, model, url) {
     const rest = slug.slice(mk.length + 1);
     const md = [...pairs].filter(p => p.startsWith(mk + "|")).map(p => p.split("|")[1])
       .find(m => rest === m || rest.startsWith(m + "-"));
-    return md ? true : false;
+    // Модель з адреси не впізнали — це ще не означає, що її немає (на Otomoto назви бувають інші:
+    // «seria-3», «klasa-c»). Вирішимо після завантаження оголошення.
+    return md ? true : null;
   }
   return null;
 }

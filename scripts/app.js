@@ -172,7 +172,7 @@
       if (!check.ok) return setMsg(check.message, "err");
       // Марка й модель з адреси: якщо їх немає в базі — одразу кажемо, без аналізу
       const found = detectCar(new URL(rawUrl).pathname);
-      if (!found || !found.model) {
+      if (!found || (!found.model && !found.unsure)) {
         // Модель з адреси: otomoto.pl/…/oferta/<марка>-<модель>-…
         const tail = new URL(rawUrl).pathname.split("/").pop().replace(/-ID[0-9A-Za-z]+\.html$/, "").split("-");
         const guess = found ? tail.slice(slug(found.make).split("-").length).slice(0, 1).join(" ") : "";
@@ -220,9 +220,16 @@
       const models = Object.keys(DB.makes[mk]);
       // Спершу модель одразу після марки (skoda-octavia, mazda-cx-5), інакше — будь-де,
       // але тільки для довших назв, щоб «3» чи «6» не збігались з цифрами двигуна.
-      const md = models.find(m => has(mw.concat(slug(m).split("-").filter(Boolean)))) ||
-                 models.find(m => slug(m).replace(/-/g, "").length > 2 && has(slug(m).split("-").filter(Boolean)));
-      return { make: mk, model: md || null };
+      let md = models.find(m => has(mw.concat(slug(m).split("-").filter(Boolean)))) ||
+               models.find(m => slug(m).replace(/-/g, "").length > 2 && has(slug(m).split("-").filter(Boolean)));
+      // Інші назви моделей, як на Otomoto: «bmw-seria-3», «mercedes-benz-klasa-c»
+      const aliases = Object.entries(DB.aliases || {}).filter(([k]) => k.split("|")[0] === mk);
+      if (!md) {
+        const hit = aliases.find(([, names]) => names.some(n => has(slug(n).split("-").filter(Boolean))));
+        if (hit) md = hit[0].split("|")[1];
+      }
+      // Для марок з псевдонімами модель в адресі може бути записана як завгодно — тоді перевірить сервер
+      return { make: mk, model: md || null, unsure: !md && aliases.length > 0 };
     }
     return null;
   }
