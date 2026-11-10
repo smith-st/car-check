@@ -24,7 +24,7 @@
     P.year >= v.years[0] && P.year <= yTo(v.years[1]);
 
   if (!valid) {
-    document.title = "Авто не знайдено — CarCheck";
+    document.title = "Авто не знайдено — Car Check";
     app.innerHTML = `
       <div class="notfound">
         <h1>Авто не знайдено</h1>
@@ -38,7 +38,7 @@
   const codes = v[P.gb];
   const gbs = codes.map(c => ({ code: c, ...(DB.gearboxes[c] || { name: c, issues: [], check: [] }) }));
   const title = `${P.make} ${P.model}`;
-  document.title = `${title} ${P.year}, ${v.label} — CarCheck`;
+  document.title = `${title} ${P.year}, ${v.label} — Car Check`;
 
   // ---------- Чек-лист ----------
   const isDiesel = /дизель/i.test(engine.fuel || "");
