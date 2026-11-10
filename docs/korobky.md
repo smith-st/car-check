@@ -158,15 +158,6 @@
 | 1.5 T-GDI 160 к.с. | 2020–2024 | Механічна 6-ступ. | HK-DCT7 |  |
 | 1.6 CRDi 95–136 к.с. | 2017–2024 | Механічна 6-ступ. | HK-DCT7 |  |
 
-### Hyundai Tucson ix35 (LM) (2010–2015)
-
-| Двигун | Роки | Механіка | Автомат | Примітка |
-|---|---|---|---|---|
-| 1.6 GDI 135 к.с. | 2013–2015 | Механічна 6-ступ. | — |  |
-| 2.0 MPI / GDI 163–166 к.с. | 2010–2015 | Механічна 6-ступ. | HK-AT6 |  |
-| 1.7 CRDi 115 к.с. | 2010–2015 | Механічна 6-ступ. | — |  |
-| 2.0 CRDi 136–184 к.с. | 2010–2015 | Механічна 6-ступ. | HK-AT6 |  |
-
 ### Hyundai Tucson III (TL) (2015–2020)
 
 | Двигун | Роки | Механіка | Автомат | Примітка |
@@ -184,6 +175,15 @@
 | 1.6 T-GDI Hybrid 230 к.с. | 2020–н.ч. | — | HK-AT6 |  |
 | 1.6 T-GDI Plug-in Hybrid 265 к.с. | 2021–н.ч. | — | HK-AT6 |  |
 | 1.6 CRDi 115–136 к.с. | 2020–2023 | Механічна 6-ступ. | HK-DCT7 |  |
+
+### Hyundai ix35 I (LM) (2010–2015)
+
+| Двигун | Роки | Механіка | Автомат | Примітка |
+|---|---|---|---|---|
+| 1.6 GDI 135 к.с. | 2013–2015 | Механічна 6-ступ. | — |  |
+| 2.0 MPI / GDI 163–166 к.с. | 2010–2015 | Механічна 6-ступ. | HK-AT6 |  |
+| 1.7 CRDi 115 к.с. | 2010–2015 | Механічна 6-ступ. | — |  |
+| 2.0 CRDi 136–184 к.с. | 2010–2015 | Механічна 6-ступ. | HK-AT6 |  |
 
 ### Kia Ceed I (ED) (2006–2012)
 
@@ -973,11 +973,11 @@
 - Hyundai i30 II (GD) — 1.6 MPI 120 к.с. (2012–2017)
 - Hyundai i30 II (GD) — 1.6 GDI 135 к.с. (2012–2017)
 - Hyundai i30 II (GD) — 1.6 CRDi 110–136 к.с. (2012–2017)
-- Hyundai Tucson ix35 (LM) — 2.0 MPI / GDI 163–166 к.с. (2010–2015)
-- Hyundai Tucson ix35 (LM) — 2.0 CRDi 136–184 к.с. (2010–2015)
 - Hyundai Tucson III (TL) — 2.0 CRDi 136–185 к.с. (2015–2020)
 - Hyundai Tucson IV (NX4) — 1.6 T-GDI Hybrid 230 к.с. (2020–н.ч.)
 - Hyundai Tucson IV (NX4) — 1.6 T-GDI Plug-in Hybrid 265 к.с. (2021–н.ч.)
+- Hyundai ix35 I (LM) — 2.0 MPI / GDI 163–166 к.с. (2010–2015)
+- Hyundai ix35 I (LM) — 2.0 CRDi 136–184 к.с. (2010–2015)
 - Kia Ceed II (JD) — 1.6 MPI 120 к.с. (2012–2018)
 - Kia Ceed II (JD) — 1.6 GDI 135 к.с. (2012–2018)
 - Kia Ceed II (JD) — 1.6 CRDi 110–136 к.с. (2012–2018)
@@ -1205,16 +1205,16 @@
 - Hyundai i30 III (PD) — 1.4 T-GDI 140 к.с. (2017–2020)
 - Hyundai i30 III (PD) — 1.5 T-GDI 160 к.с. (2020–2024)
 - Hyundai i30 III (PD) — 1.6 CRDi 95–136 к.с. (2017–2024)
-- Hyundai Tucson ix35 (LM) — 1.6 GDI 135 к.с. (2013–2015)
-- Hyundai Tucson ix35 (LM) — 2.0 MPI / GDI 163–166 к.с. (2010–2015)
-- Hyundai Tucson ix35 (LM) — 1.7 CRDi 115 к.с. (2010–2015)
-- Hyundai Tucson ix35 (LM) — 2.0 CRDi 136–184 к.с. (2010–2015)
 - Hyundai Tucson III (TL) — 1.6 GDI 132 к.с. (2015–2020)
 - Hyundai Tucson III (TL) — 1.6 T-GDI 177 к.с. (2015–2020)
 - Hyundai Tucson III (TL) — 1.6 / 1.7 CRDi 115–141 к.с. (2015–2020)
 - Hyundai Tucson III (TL) — 2.0 CRDi 136–185 к.с. (2015–2020)
 - Hyundai Tucson IV (NX4) — 1.6 T-GDI 150–180 к.с. (2020–н.ч.)
 - Hyundai Tucson IV (NX4) — 1.6 CRDi 115–136 к.с. (2020–2023)
+- Hyundai ix35 I (LM) — 1.6 GDI 135 к.с. (2013–2015)
+- Hyundai ix35 I (LM) — 2.0 MPI / GDI 163–166 к.с. (2010–2015)
+- Hyundai ix35 I (LM) — 1.7 CRDi 115 к.с. (2010–2015)
+- Hyundai ix35 I (LM) — 2.0 CRDi 136–184 к.с. (2010–2015)
 - Kia Ceed I (ED) — 1.6 CRDi 90–128 к.с. (2006–2012)
 - Kia Ceed II (JD) — 1.0 T-GDI 100–120 к.с. (2015–2018)
 - Kia Ceed II (JD) — 1.4 100 к.с. (2012–2018)

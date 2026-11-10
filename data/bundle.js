@@ -1811,15 +1811,6 @@ window.CarCheck.makes["Hyundai"] = {
 
   "Tucson": [
     {
-      generation: "ix35 (LM)", years: [2010, 2015],
-      variants: [
-        { engine: "hk-gdi",       label: "1.6 GDI 135 к.с.",           years: [2013, 2015], manual: ["MT6"], auto: [] },
-        { engine: "hk-nu",        label: "2.0 MPI / GDI 163–166 к.с.", years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] },
-        { engine: "hk-crdi-small", label: "1.7 CRDi 115 к.с.",         years: [2010, 2015], manual: ["MT6"], auto: [] },
-        { engine: "hk-crdi-2.0",  label: "2.0 CRDi 136–184 к.с.",      years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] }
-      ]
-    },
-    {
       generation: "III (TL)", years: [2015, 2020],
       variants: [
         { engine: "hk-gdi",        label: "1.6 GDI 132 к.с.",         years: [2015, 2020], manual: ["MT6"], auto: [] },
@@ -1836,6 +1827,18 @@ window.CarCheck.makes["Hyundai"] = {
         { engine: "hk-hybrid",      label: "1.6 T-GDI Hybrid 230 к.с.", years: [2020, null], manual: [], auto: ["HK-AT6"] },
         { engine: "hk-hybrid",      label: "1.6 T-GDI Plug-in Hybrid 265 к.с.", years: [2021, null], manual: [], auto: ["HK-AT6"] },
         { engine: "hk-crdi-small",  label: "1.6 CRDi 115–136 к.с.",    years: [2020, 2023], manual: ["MT6"], auto: ["HK-DCT7"] }
+      ]
+    }
+  ],
+
+  "ix35": [
+    {
+      generation: "I (LM)", years: [2010, 2015],
+      variants: [
+        { engine: "hk-gdi",       label: "1.6 GDI 135 к.с.",           years: [2013, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-nu",        label: "2.0 MPI / GDI 163–166 к.с.", years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] },
+        { engine: "hk-crdi-small", label: "1.7 CRDi 115 к.с.",         years: [2010, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-2.0",  label: "2.0 CRDi 136–184 к.с.",      years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] }
       ]
     }
   ]

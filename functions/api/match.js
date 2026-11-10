@@ -38,9 +38,11 @@ const fuelKind = s => {
 const roman = s => (String(s || "").trim().match(/^([IVX]+|B\d)\b/) || [])[1] || null;
 
 // Індекси каталогу для пари марка+модель
+// Порівнюємо без дефісів і пробілів: «cee'd» = «Ceed», «CX 5» = «CX-5», «Seria 3» = «seria-3»
+const compact = s => slugify(s).replace(/-/g, "");
 function modelIndices(K, make, model) {
-  const mk = slugify(make), md = slugify(model);
-  return K.catalog.map((c, i) => i).filter(i => slugify(K.catalog[i].make) === mk && slugify(K.catalog[i].model) === md);
+  const mk = compact(make), md = compact(model);
+  return K.catalog.map((c, i) => i).filter(i => compact(K.catalog[i].make) === mk && compact(K.catalog[i].model) === md);
 }
 
 export function fromSpecs(K, specs) {

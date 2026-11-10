@@ -152,8 +152,12 @@ function inDatabase(K, make, model, url) {
   const pairs = new Set(K.catalog.map(c => slugify(c.make) + "|" + slugify(c.model)));
   const makes = new Set(K.catalog.map(c => slugify(c.make)));
   if (make) {
-    if (!makes.has(slugify(make))) return false;
-    if (model) return pairs.has(slugify(make) + "|" + slugify(model));
+    // Порівнюємо без дефісів: «cee'd» = «Ceed», «Seria 3» = «seria-3»
+    const c = x => slugify(x).replace(/-/g, "");
+    const cm = new Set(K.catalog.map(k => c(k.make)));
+    const cp = new Set(K.catalog.map(k => c(k.make) + "|" + c(k.model)));
+    if (!cm.has(c(make))) return false;
+    if (model) return cp.has(c(make) + "|" + c(model));
     return null;
   }
   // З адреси: otomoto.pl/…/oferta/<марка>-<модель>-…-ID….html
