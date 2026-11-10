@@ -175,9 +175,40 @@
       msg.textContent = "Поки що підтримуємо лише otomoto.pl, auto.ria.com та olx.pl.";
       msg.classList.add("err"); return;
     }
-    msg.textContent = `Посилання з ${site} прийнято.`; msg.classList.add("ok");
-    showSimple("Оголошення отримано",
-      "Тут з'являться дані з оголошення та звіт по авто. Розбір оголошень підключимо наступним кроком.");
+    const found = detectCar(u.pathname);
+    if (!found || !found.model) {
+      msg.textContent = "";
+      showSimple(found ? `По цій моделі ${found.make} інформації поки немає` : "По цьому авто інформації поки немає",
+        `Зараз доступні: ${availableList()}. Ми поступово додаємо нові марки й моделі.`);
+      return;
+    }
+    msg.textContent = `Розпізнано: ${found.make} ${found.model} (${site}). Уточніть рік, двигун і коробку.`;
+    msg.classList.add("ok");
+    // Переходимо до ручного вибору з підставленими маркою й моделлю
+    $("t-manual").click();
+    make.value = found.make; make.dispatchEvent(new Event("change"));
+    model.value = found.model; model.dispatchEvent(new Event("change"));
+    year.focus();
+    showSimple(`${found.make} ${found.model}`,
+      "Авто знайдено в базі. Оберіть рік, двигун і тип коробки, щоб отримати звіт.");
   });
+
+  // Розпізнавання марки й моделі зі шляху посилання,
+  // напр. otomoto: /osobowe/oferta/skoda-octavia-…, auto.ria: /auto_skoda_octavia_…, olx: /d/oferta/skoda-octavia-…
+  const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  function detectCar(pathname) {
+    const tokens = slug(decodeURIComponent(pathname)).split("-").filter(Boolean);
+    const has = words => tokens.some((_, i) => words.every((w, k) => tokens[i + k] === w));
+    for (const mk of Object.keys(DB.makes)) {
+      if (!has(slug(mk).split("-").filter(Boolean))) continue;
+      const md = Object.keys(DB.makes[mk]).find(m => has(slug(m).split("-").filter(Boolean)));
+      return { make: mk, model: md || null };
+    }
+    return null;
+  }
+  function availableList() {
+    return Object.entries(DB.makes)
+      .map(([mk, models]) => `${mk} ${Object.keys(models).join(", ")}`).join("; ");
+  }
   $("url").addEventListener("keydown", e => { if (e.key === "Enter") $("go-link").click(); });
 })();
