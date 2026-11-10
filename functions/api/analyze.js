@@ -227,8 +227,10 @@ export async function onRequestPost({ request, env }) {
   const dataVersion = (await sha256(kText)).slice(0, 12);
   const modelAlias = MODELS[body.model] ? body.model : null;
   const model = modelAlias ? MODELS[modelAlias] : (env.CLAUDE_MODEL || DEFAULT_MODEL);
+  // Необов'язковий рівень зусиль Claude: low | medium | high | xhigh (за замовчуванням — як у моделі)
+  const effort = ["low", "medium", "high", "xhigh"].includes(body.effort) ? body.effort : null;
   // Модель входить у ключ кешу: результати Sonnet і Haiku для одного оголошення зберігаються окремо
-  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") });
+  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") + (effort ? ":" + effort : "") });
   const hit = await cacheGet(env, key).catch(() => null);
   if (hit) return json({ ...hit.data, cached: true, cached_at: new Date(hit.at).toISOString() });
 
@@ -291,11 +293,11 @@ export async function onRequestPost({ request, env }) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: MAX_TOKENS,
+        max_tokens: effort === "high" || effort === "xhigh" ? 16000 : MAX_TOKENS,
         // Без кешування промпту: він короткий і щоразу інший (лише кандидати для цього авто),
         // а запис у кеш коштує на 25% дорожче звичайного вводу.
         system: systemPrompt(K, subset, now),
-        output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA } },
+        output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA }, ...(effort ? { effort } : {}) },
         messages: [{
           role: "user",
           content: `${url ? `Посилання: ${url}\n\n` : ""}<listing>\n${text}\n</listing>`
@@ -369,6 +371,7 @@ export async function onRequestPost({ request, env }) {
     source,
     url: url || null,
     model,
+    effort: effort || "default",
     usage: data.usage ? { input_tokens: data.usage.input_tokens, output_tokens: data.usage.output_tokens } : null,
     ...rest,
     red_flags: (r.red_flags || []).slice(0, 6),
