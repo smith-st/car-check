@@ -16,8 +16,9 @@
 export const slugify = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
   .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-const NOW = new Date().getFullYear();
-const yTo = y => (y === null ? NOW : y);
+// Рік рахуємо під час запиту: у Cloudflare Workers на рівні модуля годинник стоїть на 1970 р.
+const thisYear = () => new Date().getFullYear();
+const yTo = y => (y === null ? thisYear() : y);
 
 // «1.5 TSI 150 к.с.» → 1.5; «RS 2.0 TDI 184 к.с.» → 2.0; «1.33 Dual VVT-i» → 1.3
 function displacement(label) {
@@ -107,7 +108,7 @@ export function fromText(K, text) {
   if (pair) idx = modelIndices(K, pair.make, pair.model);
   if (!idx) return { status: "unknown", indices: K.catalog.map((c, i) => i) };
   // Якщо в тексті є рік — лишаємо версії, що випускались у цей рік
-  const years = [...String(text).matchAll(/\b(19[89]\d|20[0-3]\d)\b/g)].map(m => Number(m[1])).filter(y => y <= NOW);
+  const years = [...String(text).matchAll(/\b(19[89]\d|20[0-3]\d)\b/g)].map(m => Number(m[1])).filter(y => y <= thisYear());
   if (years.length) {
     const y = idx.filter(i => years.some(yr => yr >= K.catalog[i].years[0] && yr <= yTo(K.catalog[i].years[1])));
     if (y.length) idx = y;
