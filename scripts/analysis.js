@@ -19,7 +19,11 @@ window.CarCheckAI = (function () {
     if (res.status === 404 || res.status === 405 || !data) {
       throw new Error("Аналіз оголошень працює лише на версії сайту з бекендом (Cloudflare).");
     }
-    if (!res.ok || data.error) throw new Error(data.error || "Помилка аналізу.");
+    if (!res.ok || data.error) {
+      const err = new Error(data.error || "Помилка аналізу.");
+      err.data = data;
+      throw err;
+    }
     return data;
   }
 

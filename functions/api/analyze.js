@@ -14,6 +14,7 @@
 
 import { checkListingUrl } from "../../scripts/listing-url.js";
 import { checkRateLimit } from "../../worker/limiter.js";
+import { fetchOtomoto } from "./otomoto.js";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
 const MAX_TOKENS = 4000;      // максимальна довжина відповіді Claude
@@ -135,6 +136,32 @@ ${engineLines}
 ${gearboxLines}`;
 }
 
+// ---------- Чи є авто в базі (без Claude) ----------
+const slugify = s => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+// true — марка й модель є в базі; false — точно немає; null — невідомо (вирішить Claude)
+function inDatabase(K, make, model, url) {
+  const pairs = new Set(K.catalog.map(c => slugify(c.make) + "|" + slugify(c.model)));
+  const makes = new Set(K.catalog.map(c => slugify(c.make)));
+  if (make) {
+    if (!makes.has(slugify(make))) return false;
+    if (model) return pairs.has(slugify(make) + "|" + slugify(model));
+    return null;
+  }
+  // З адреси: otomoto.pl/…/oferta/<марка>-<модель>-…-ID….html
+  if (url) {
+    let slug = "";
+    try { slug = slugify(decodeURIComponent(new URL(url).pathname.split("/").pop().replace(/-ID[0-9A-Za-z]+\.html$/, ""))); } catch { return null; }
+    if (!slug) return null;
+    const mk = [...makes].find(m => slug === m || slug.startsWith(m + "-"));
+    if (!mk) return false;
+    const rest = slug.slice(mk.length + 1);
+    const md = [...pairs].filter(p => p.startsWith(mk + "|")).map(p => p.split("|")[1])
+      .find(m => rest === m || rest.startsWith(m + "-"));
+    return md ? true : false;
+  }
+  return null;
+}
+
 // ---------- Обробник ----------
 export async function onRequestPost({ request, env }) {
   if (!env.ANTHROPIC_API_KEY) {
@@ -149,9 +176,10 @@ export async function onRequestPost({ request, env }) {
 
   let body;
   try { body = await request.json(); } catch { return json({ error: "Некоректний запит." }, 400); }
-  const text = String(body.text || "").trim();
+  let text = String(body.text || "").trim();
   const url = String(body.url || "").trim().slice(0, 500);
-  if (text.length < 40) return json({ error: "Вставте повний текст оголошення (хоча б кілька речень)." }, 400);
+  if (!text && !url) return json({ error: "Вставте посилання на оголошення." }, 400);
+  if (text && text.length < 40) return json({ error: "Вставте повний текст оголошення (хоча б кілька речень)." }, 400);
   if (text.length > MAX_TEXT) return json({ error: `Текст задовгий: максимум ${MAX_TEXT} символів.` }, 400);
 
   // Посилання (якщо є) має вести на конкретне оголошення з підтримуваного сайту
@@ -159,6 +187,24 @@ export async function onRequestPost({ request, env }) {
     const check = checkListingUrl(url);
     if (!check.ok) return json({ error: check.message, reason: check.reason }, 400);
   }
+
+  // База знань сайту (статичний файл)
+  let K;
+  try {
+    const kUrl = new URL("/data/knowledge.json", request.url);
+    const res = env.ASSETS ? await env.ASSETS.fetch(kUrl) : await fetch(kUrl);
+    K = await res.json();
+  } catch {
+    return json({ error: "Не вдалося завантажити базу авто." }, 500);
+  }
+  const now = new Date().getFullYear();
+
+  // Чи є це авто в базі — спершу за адресою оголошення (otomoto.pl/…/oferta/<марка>-<модель>-…),
+  // до будь-яких запитів: безкоштовно й без ліміту.
+  const notInDb = (make, model) => json({
+    is_car_listing: true, match: null, not_in_db: true, listing: { make: make || null, model: model || null }
+  });
+  if (url && inDatabase(K, null, null, url) === false) return notInDb();
 
   // Обмеження кількості аналізів (на IP і загальне на добу)
   const limit = await checkRateLimit(request, env);
@@ -173,16 +219,24 @@ export async function onRequestPost({ request, env }) {
     }), { status: 429, headers: { "content-type": "application/json; charset=utf-8", "retry-after": String(limit.retryAfter) } });
   }
 
-  // База знань сайту (статичний файл)
-  let K;
-  try {
-    const kUrl = new URL("/data/knowledge.json", request.url);
-    const res = env.ASSETS ? await env.ASSETS.fetch(kUrl) : await fetch(kUrl);
-    K = await res.json();
-  } catch {
-    return json({ error: "Не вдалося завантажити базу авто." }, 500);
+  // Лише посилання — завантажуємо оголошення з Otomoto самі.
+  // Якщо не вийшло — просимо користувача вставити текст (need_text).
+  let source = "text";
+  if (!text) {
+    const fetched = await fetchOtomoto(url, MAX_TEXT);
+    if (!fetched.ok) {
+      return json({
+        error: fetched.reason === "gone" ? fetched.message
+          : `${fetched.message} Скопіюйте текст оголошення й вставте його нижче.`,
+        reason: fetched.reason === "gone" ? "gone" : "fetch_failed",
+        need_text: fetched.reason !== "gone"
+      }, 422);
+    }
+    // Точна марка й модель з даних Otomoto
+    if (inDatabase(K, fetched.make, fetched.model, null) === false) return notInDb(fetched.make, fetched.model);
+    text = fetched.text;
+    source = "otomoto";
   }
-  const now = new Date().getFullYear();
 
   let apiRes;
   try {
@@ -264,6 +318,8 @@ export async function onRequestPost({ request, env }) {
   return json({
     is_car_listing: true,
     match,
+    source,
+    url: url || null,
     ...rest,
     red_flags: (r.red_flags || []).slice(0, 6),
     good_signs: (r.good_signs || []).slice(0, 4),

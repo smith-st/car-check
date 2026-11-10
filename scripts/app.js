@@ -127,10 +127,8 @@
   const noInfo = (makeName) => showSimple(
     makeName ? `По цій моделі ${makeName} інформації поки немає` : "По цьому авто інформації поки немає",
     `Зараз доступні: ${availableList()}. Ми поступово додаємо нові марки й моделі.`);
-
-  listing.addEventListener("input", () => {
-    $("go-link-text").textContent = listing.value.trim() ? "Аналізувати" : "Перевірити";
-  });
+  const showText = () => { $("text-wrap").hidden = false; $("show-text").hidden = true; };
+  $("show-text").addEventListener("click", () => { showText(); listing.focus(); });
 
   // Підставити авто у форму ручного вибору
   function prefill(m) {
@@ -151,54 +149,49 @@
 
   goLink.addEventListener("click", async () => {
     setMsg("");
+    $("result").classList.remove("show");
     const rawUrl = $("url").value.trim();
     const text = listing.value.trim();
-    let u = null, site = null;
+    if (!rawUrl && !text) return setMsg("Вставте посилання на оголошення з Otomoto.", "err");
+
     if (rawUrl) {
-      // Тільки посилання на конкретне оголошення (не список, не пошук, не інший сайт)
+      // Тільки посилання на конкретне оголошення Otomoto (не список, не пошук, не інший сайт)
       const check = CarCheckURL.check(rawUrl);
       if (!check.ok) return setMsg(check.message, "err");
-      u = new URL(rawUrl); site = check.site;
+      // Марка й модель з адреси: якщо їх немає в базі — одразу кажемо, без аналізу
+      const found = detectCar(new URL(rawUrl).pathname);
+      if (!found || !found.model) return noInfo(found && found.make);
     }
 
-    // З текстом — аналіз через Claude
-    if (text) {
-      goLink.classList.add("loading");
-      $("go-link-text").textContent = "Аналізую…";
-      setMsg("Claude оцінює оголошення, це займає 20–40 секунд…");
-      let r;
-      try { r = await CarCheckAI.analyze(text, rawUrl); }
-      catch (e) { return setMsg(e.message, "err"); }
-      finally { goLink.classList.remove("loading"); $("go-link-text").textContent = "Аналізувати"; }
-
-      if (!r.is_car_listing) return setMsg("Схоже, це не оголошення про продаж авто.", "err");
-      if (!r.match) {
-        setMsg("");
-        const known = r.listing && DB.makes[r.listing.make];
-        return noInfo(known ? r.listing.make : null);
-      }
-      CarCheckAI.save(r);
-      if (r.match.gb) {
-        location.href = "car.html?" + new URLSearchParams(r.match).toString();
-        return;
-      }
-      // Тип коробки з оголошення не зрозумілий — просимо обрати
-      prefill(r.match);
-      showSimple(`${r.match.make} ${r.match.model} ${r.match.year}, ${r.match.engine}`,
-        "Авто знайдено в базі. З оголошення не зрозуміло, яка коробка, — оберіть тип коробки й натисніть «Перевірити».");
-      gearbox.focus();
+    goLink.classList.add("loading");
+    $("go-link-text").textContent = "Аналізую…";
+    setMsg(text ? "Claude оцінює оголошення, це займає 20–40 секунд…"
+                : "Завантажуємо оголошення з Otomoto, і Claude його оцінює — це займає 20–40 секунд…");
+    let r;
+    try { r = await CarCheckAI.analyze(text, rawUrl); }
+    catch (e) {
+      setMsg(e.message, "err");
+      if (e.data && e.data.need_text) { showText(); listing.focus(); }
       return;
     }
+    finally { goLink.classList.remove("loading"); $("go-link-text").textContent = "Аналізувати"; }
 
-    // Лише посилання — визначаємо марку й модель з адреси
-    if (!u) return setMsg("Вставте посилання або текст оголошення.", "err");
-    const found = detectCar(u.pathname);
-    if (!found || !found.model) return noInfo(found && found.make);
-    setMsg(`Розпізнано: ${found.make} ${found.model} (${site}). Уточніть рік, двигун і коробку.`, "ok");
-    prefill(found);
-    year.focus();
-    showSimple(`${found.make} ${found.model}`,
-      "Авто знайдено в базі. Оберіть рік, двигун і тип коробки, щоб отримати звіт.");
+    if (!r.is_car_listing) return setMsg("Схоже, це не оголошення про продаж авто.", "err");
+    setMsg("");
+    if (r.not_in_db || !r.match) {
+      const known = r.listing && Object.keys(DB.makes).find(mk => slug(mk) === slug(r.listing.make || ""));
+      return noInfo(known || null);
+    }
+    CarCheckAI.save(r);
+    if (r.match.gb) {
+      location.href = "car.html?" + new URLSearchParams(r.match).toString();
+      return;
+    }
+    // Тип коробки з оголошення не зрозумілий — просимо обрати
+    prefill(r.match);
+    showSimple(`${r.match.make} ${r.match.model} ${r.match.year}, ${r.match.engine}`,
+      "Авто знайдено в базі. З оголошення не зрозуміло, яка коробка, — оберіть тип коробки й натисніть «Перевірити».");
+    gearbox.focus();
   });
 
   // Розпізнавання марки й моделі зі шляху посилання,
@@ -223,5 +216,5 @@
     return Object.entries(DB.makes)
       .map(([mk, models]) => `${mk} ${Object.keys(models).join(", ")}`).join("; ");
   }
-  $("url").addEventListener("keydown", e => { if (e.key === "Enter") $("go-link").click(); });
+  $("url").addEventListener("keydown", e => { if (e.key === "Enter") goLink.click(); });
 })();

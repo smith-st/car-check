@@ -7,10 +7,12 @@
 //   auto.ria.com /auto_skoda_octavia_39915829.html                   (також /uk/auto_…)
 // Списки й пошук (/osobowe/skoda/octavia?…, /motoryzacja/samochody/…, /search/…, /car/…) — не оголошення.
 
+// Поки що працюємо лише з Otomoto. Щоб увімкнути OLX чи AUTO.RIA, розкоментуйте рядки
+// (і додайте їм завантаження сторінки в functions/api/, як otomoto.js).
 const SITES = [
-  { host: "otomoto.pl",   name: "Otomoto",   listing: /^\/(?:[a-z-]+\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ },
-  { host: "olx.pl",       name: "OLX",       listing: /^\/d\/(?:[a-z]{2}\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ },
-  { host: "auto.ria.com", name: "AUTO.RIA",  listing: /^\/(?:(?:uk|ru)\/)?auto_[a-z0-9_]+_\d+\.html$/i }
+  { host: "otomoto.pl",   name: "Otomoto",   listing: /^\/(?:[a-z-]+\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ }
+  // { host: "olx.pl",       name: "OLX",       listing: /^\/d\/(?:[a-z]{2}\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ },
+  // { host: "auto.ria.com", name: "AUTO.RIA",  listing: /^\/(?:(?:uk|ru)\/)?auto_[a-z0-9_]+_\d+\.html$/i }
 ];
 
 // Повертає { ok: true, site, host, path } або { ok: false, reason, message }
@@ -25,7 +27,7 @@ function checkListingUrl(raw) {
   const host = u.hostname.toLowerCase().replace(/^(www\.|m\.)/, "");
   const site = SITES.find(s => host === s.host || host.endsWith("." + s.host));
   if (!site) {
-    return { ok: false, reason: "site", message: "Поки що підтримуємо лише оголошення з Otomoto, OLX та AUTO.RIA." };
+    return { ok: false, reason: "site", message: "Поки що підтримуємо лише оголошення з Otomoto." };
   }
   const path = decodeURIComponent(u.pathname).replace(/\/+$/, "");
   if (!site.listing.test(path)) {
