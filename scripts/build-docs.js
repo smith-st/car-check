@@ -1,6 +1,6 @@
 // Генерує з файлів data/:
 //   docs/korobky.md    — «яка коробка на яких моделях і роках»
-//   data/catalog.json  — компактний список авто з бази для бекенда (/api/analyze)
+//   data/knowledge.json — база для бекенда (/api/analyze): список авто, двигуни, коробки
 // Запуск після будь-якої зміни даних: node scripts/build-docs.js
 const fs = require("fs");
 const path = require("path");
