@@ -39,6 +39,18 @@ Object.assign(window.CarCheck.engines, {
       "Знос турбіни на великих пробігах"
     ]
   },
+  "opel-2.0-turbo": {
+    name: "2.0 Turbo (Z20LEH, A20NHT, LTG)",
+    family: "GM Ecotec / LNF",
+    fuel: "Бензин, турбо",
+    timing: "ланцюг",
+    summary: "Потужний турбомотор Astra OPC та Insignia. Швидкий, але навантажений; часто після тюнінгу.",
+    issues: [
+      "Розтягнення ланцюга ГРМ і натягувача",
+      "Знос турбіни, течі оливи й антифризу",
+      "Ризик жорсткої експлуатації й чіп-тюнінгу"
+    ]
+  },
   "opel-sge-turbo": {
     name: "1.0 / 1.2 / 1.4 Turbo (B10XFT, B14XFT, F12SHT, F14SHT)",
     family: "GM Small Gasoline Engine",

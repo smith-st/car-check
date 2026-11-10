@@ -69,6 +69,90 @@ Object.assign(window.CarCheck.engines, {
   }
 });
 
+// ===== data/engines/hyundai-kia.js =====
+// Двигуни Hyundai і Kia (спільні для обох марок): Gamma, Kappa, Nu, Smartstream, CRDi, гібриди.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.engines, {
+  "hk-mpi": {
+    name: "1.4 / 1.6 MPI (Gamma, Kappa)",
+    family: "Hyundai Gamma / Kappa",
+    fuel: "Бензин",
+    timing: "ланцюг",
+    summary: "Прості атмосферні мотори i30, Ceed і Tucson. Загалом надійні, підходять під ГБО.",
+    issues: [
+      "Витрата оливи на великих пробігах",
+      "Задири циліндрів через крихту зруйнованого каталізатора (при перегріві або пропусках запалювання)",
+      "Розтягнення ланцюга ГРМ після 150–200 тис. км"
+    ]
+  },
+  "hk-gdi": {
+    name: "1.6 GDI (Gamma)",
+    family: "Hyundai Gamma",
+    fuel: "Бензин (безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Атмосферний мотор з безпосереднім вприском 2011–2019 рр. Економніший за MPI, але примхливіший.",
+    issues: ["Нагар на впускних клапанах", "Витрата оливи, задири циліндрів", "Стук паливного насоса високого тиску"]
+  },
+  "hk-tgdi-small": {
+    name: "1.0 / 1.4 T-GDI (Kappa)",
+    family: "Hyundai Kappa",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Невеликі турбомотори i30, Ceed, i20 з 2015 р. Економні; великих системних проблем не відомо.",
+    issues: ["Нагар на впускних клапанах", "1.0 (3 циліндри): вібрації на холостих", "Чутливість до якості оливи"]
+  },
+  "hk-tgdi-1.6": {
+    name: "1.6 T-GDI (Gamma II)",
+    family: "Hyundai Gamma II",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Потужний турбомотор Tucson, Sportage, i30 Turbo / Ceed GT (2015–2020). Динамічний.",
+    issues: ["Нагар на впускних клапанах", "Розрідження оливи паливом при коротких поїздках", "Знос турбіни на великих пробігах"]
+  },
+  "hk-smartstream": {
+    name: "1.5 / 1.6 T-GDI Smartstream",
+    family: "Hyundai Smartstream",
+    fuel: "Бензин, турбо (часто з мілд-гібридом 48 В)",
+    timing: "ланцюг",
+    summary: "Нове покоління турбомоторів з 2020 р. (i30, Ceed, Tucson NX4, Sportage NQ5). Статистики поки небагато.",
+    issues: ["Мало статистики на великих пробігах", "Мілд-гібрид: акумулятор і стартер-генератор 48 В"]
+  },
+  "hk-nu": {
+    name: "2.0 MPI / GDI (Nu)",
+    family: "Hyundai Nu",
+    fuel: "Бензин",
+    timing: "ланцюг",
+    summary: "2-літровий атмосферний мотор ix35, Tucson і Sportage. Простий, але з відомими проблемами.",
+    issues: ["Задири циліндрів і витрата оливи", "Стук поршнів на холодну", "Нагар (версія GDI)"]
+  },
+  "hk-crdi-small": {
+    name: "1.4 / 1.6 / 1.7 CRDi (U-line)",
+    family: "Hyundai U",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Дизелі i30, Ceed, Tucson і Sportage. Економні й загалом витривалі.",
+    issues: ["Забивання DPF при міській їзді", "Форсунки", "Двомасовий маховик"]
+  },
+  "hk-crdi-2.0": {
+    name: "2.0 / 2.2 CRDi (R-line)",
+    family: "Hyundai R",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Потужні дизелі ix35/Tucson і Sportage. Тягові, але потребують уваги.",
+    issues: ["Форсунки й паливний насос", "DPF і клапан EGR", "Розтягнення ланцюга ГРМ на великих пробігах"]
+  },
+  "hk-hybrid": {
+    name: "1.6 T-GDI Hybrid / Plug-in Hybrid",
+    family: "Hyundai Smartstream",
+    fuel: "Бензин + електро (повний або плагін-гібрид)",
+    timing: "ланцюг",
+    summary: "Гібриди Tucson NX4 і Sportage NQ5 (з 2021 р.). Технологія нова; статистики поки мало.",
+    issues: ["Стан високовольтної батареї", "Помилки гібридної системи", "Мало статистики на великих пробігах"]
+  }
+});
+
 // ===== data/engines/mazda.js =====
 // Двигуни Mazda: MZR, MZR-CD, Skyactiv-G/D/X.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -229,6 +313,18 @@ Object.assign(window.CarCheck.engines, {
       "A16LET: тріщини поршнів, витрата оливи",
       "Течі антифризу, перегрів",
       "Знос турбіни на великих пробігах"
+    ]
+  },
+  "opel-2.0-turbo": {
+    name: "2.0 Turbo (Z20LEH, A20NHT, LTG)",
+    family: "GM Ecotec / LNF",
+    fuel: "Бензин, турбо",
+    timing: "ланцюг",
+    summary: "Потужний турбомотор Astra OPC та Insignia. Швидкий, але навантажений; часто після тюнінгу.",
+    issues: [
+      "Розтягнення ланцюга ГРМ і натягувача",
+      "Знос турбіни, течі оливи й антифризу",
+      "Ризик жорсткої експлуатації й чіп-тюнінгу"
     ]
   },
   "opel-sge-turbo": {
@@ -885,6 +981,55 @@ Object.assign(window.CarCheck.gearboxes, {
   }
 });
 
+// ===== data/gearboxes/hyundai-kia.js =====
+// Автоматичні коробки Hyundai і Kia.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.gearboxes, {
+  "HK-AT4": {
+    name: "АКПП 4-ступ. (A4CF)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Старий 4-ступ. автомат i30 FD / Ceed ED. Простий і досить витривалий.",
+    issues: ["Поштовхи при перемиканні з «вічною» оливою", "Перегрів при агресивній їзді"],
+    check: ["Перемикання м'які, без ударів", "Бажано підтвердження заміни оливи"]
+  },
+  "HK-AT6": {
+    name: "АКПП 6-ступ. (A6GF1 / A6MF)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Основний 6-ступ. автомат Hyundai/Kia 2010–2020 рр. (у гібридах — з вбудованим електромотором). Загалом надійний.",
+    issues: ["Поштовхи при перемиканні 1→2 і 2→3", "Знос соленоїдів на великих пробігах"],
+    check: ["Плавні перемикання без ударів", "Немає затримки при перемиканні в D або R"]
+  },
+  "HK-DCT7": {
+    name: "Робот DCT-7 (7DCT, D7GF1)",
+    type: "auto",
+    kind: "Робот, 7 ступ., «сухе» зчеплення",
+    summary: "Робот з «сухим» подвійним зчепленням для T-GDI і CRDi з 2015 р. Економний, але не любить пробок.",
+    issues: [
+      "Тремтіння й ривки при рушанні, особливо в пробках і на підйомі",
+      "Знос подвійного зчеплення (часто 80–120 тис. км у місті)",
+      "Перегрів у пробках (попередження на панелі), відмова актуаторів",
+      "Ранні коробки (2015–2017) — найпроблемніші; частину лікували оновленням ПЗ"
+    ],
+    check: [
+      "Рушання плавне, без тремтіння й вібрації",
+      "Чи міняли зчеплення й чи оновлювали ПЗ коробки",
+      "Немає попереджень про перегрів коробки"
+    ]
+  },
+  "HK-AT8": {
+    name: "АКПП 8-ступ. (A8LF1)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "8-ступ. автомат для дизелів 2.0 CRDi у Tucson/Sportage з 2018 р. Загалом надійний.",
+    issues: ["Поштовхи на малій швидкості (оновлення ПЗ)"],
+    check: ["Плавні перемикання на малій швидкості"]
+  }
+});
+
 // ===== data/gearboxes/manual.js =====
 // Механічні коробки (загальні описи для всіх марок).
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -1483,6 +1628,155 @@ window.CarCheck.makes["Ford"] = {
   ]
 };
 
+// ===== data/makes/hyundai.js =====
+// Hyundai: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни й коробки спільні з Kia. Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Hyundai"] = {
+  "i30": [
+    {
+      generation: "I (FD)", years: [2007, 2012],
+      variants: [
+        { engine: "hk-mpi",        label: "1.4 109 к.с.",            years: [2007, 2012], manual: ["MT5"], auto: [] },
+        { engine: "hk-mpi",        label: "1.6 122–126 к.с.",        years: [2007, 2012], manual: ["MT5"], auto: ["HK-AT4"] },
+        { engine: "hk-nu",         label: "2.0 143 к.с.",            years: [2007, 2012], manual: ["MT5"], auto: ["HK-AT4"] },
+        { engine: "hk-crdi-small", label: "1.6 CRDi 90–128 к.с.",    years: [2007, 2012], manual: ["MT5", "MT6"], auto: ["HK-AT4"] }
+      ]
+    },
+    {
+      generation: "II (GD)", years: [2012, 2017],
+      variants: [
+        { engine: "hk-mpi",        label: "1.4 100 к.с.",            years: [2012, 2017], manual: ["MT6"], auto: [] },
+        { engine: "hk-mpi",        label: "1.6 MPI 120 к.с.",        years: [2012, 2017], manual: ["MT6"], auto: ["HK-AT6"] },
+        { engine: "hk-gdi",        label: "1.6 GDI 135 к.с.",        years: [2012, 2017], manual: ["MT6"], auto: ["HK-AT6", "HK-DCT7"],
+          note: "До 2015 р. — 6-ступ. автомат, з 2015 р. — робот DCT-7." },
+        { engine: "hk-tgdi-1.6",   label: "1.6 T-GDI Turbo 186 к.с.", years: [2015, 2017], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-small", label: "1.4 CRDi 90 к.с.",        years: [2012, 2017], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-small", label: "1.6 CRDi 110–136 к.с.",   years: [2012, 2017], manual: ["MT6"], auto: ["HK-AT6", "HK-DCT7"],
+          note: "До 2015 р. — 6-ступ. автомат, з 2015 р. — робот DCT-7." }
+      ]
+    },
+    {
+      generation: "III (PD)", years: [2017, 2024],
+      variants: [
+        { engine: "hk-mpi",         label: "1.4 MPI 100 к.с.",        years: [2017, 2020], manual: ["MT6"], auto: [] },
+        { engine: "hk-tgdi-small",  label: "1.0 T-GDI 120 к.с.",      years: [2017, 2024], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-tgdi-small",  label: "1.4 T-GDI 140 к.с.",      years: [2017, 2020], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-smartstream", label: "1.5 T-GDI 160 к.с.",      years: [2020, 2024], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-small",  label: "1.6 CRDi 95–136 к.с.",    years: [2017, 2024], manual: ["MT6"], auto: ["HK-DCT7"] }
+      ]
+    }
+  ],
+
+  "Tucson": [
+    {
+      generation: "ix35 (LM)", years: [2010, 2015],
+      variants: [
+        { engine: "hk-gdi",       label: "1.6 GDI 135 к.с.",           years: [2013, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-nu",        label: "2.0 MPI / GDI 163–166 к.с.", years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] },
+        { engine: "hk-crdi-small", label: "1.7 CRDi 115 к.с.",         years: [2010, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-2.0",  label: "2.0 CRDi 136–184 к.с.",      years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] }
+      ]
+    },
+    {
+      generation: "III (TL)", years: [2015, 2020],
+      variants: [
+        { engine: "hk-gdi",        label: "1.6 GDI 132 к.с.",         years: [2015, 2020], manual: ["MT6"], auto: [] },
+        { engine: "hk-tgdi-1.6",   label: "1.6 T-GDI 177 к.с.",       years: [2015, 2020], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-small", label: "1.6 / 1.7 CRDi 115–141 к.с.", years: [2015, 2020], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-2.0",   label: "2.0 CRDi 136–185 к.с.",    years: [2015, 2020], manual: ["MT6"], auto: ["HK-AT6", "HK-AT8"],
+          note: "До 2018 р. — 6-ступ. автомат, з 2018 р. — 8-ступ." }
+      ]
+    },
+    {
+      generation: "IV (NX4)", years: [2020, null],
+      variants: [
+        { engine: "hk-smartstream", label: "1.6 T-GDI 150–180 к.с.",   years: [2020, null], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-hybrid",      label: "1.6 T-GDI Hybrid 230 к.с.", years: [2020, null], manual: [], auto: ["HK-AT6"] },
+        { engine: "hk-hybrid",      label: "1.6 T-GDI Plug-in Hybrid 265 к.с.", years: [2021, null], manual: [], auto: ["HK-AT6"] },
+        { engine: "hk-crdi-small",  label: "1.6 CRDi 115–136 к.с.",    years: [2020, 2023], manual: ["MT6"], auto: ["HK-DCT7"] }
+      ]
+    }
+  ]
+};
+
+// ===== data/makes/kia.js =====
+// Kia: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни й коробки спільні з Hyundai. Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Kia"] = {
+  "Ceed": [
+    {
+      generation: "I (ED)", years: [2006, 2012],
+      variants: [
+        { engine: "hk-mpi",        label: "1.4 105–109 к.с.",        years: [2006, 2012], manual: ["MT5"], auto: [] },
+        { engine: "hk-mpi",        label: "1.6 122–126 к.с.",        years: [2006, 2012], manual: ["MT5"], auto: ["HK-AT4"] },
+        { engine: "hk-nu",         label: "2.0 143 к.с.",            years: [2006, 2012], manual: ["MT5"], auto: ["HK-AT4"] },
+        { engine: "hk-crdi-small", label: "1.6 CRDi 90–128 к.с.",    years: [2006, 2012], manual: ["MT5", "MT6"], auto: ["HK-AT4"] }
+      ]
+    },
+    {
+      generation: "II (JD)", years: [2012, 2018],
+      variants: [
+        { engine: "hk-tgdi-small", label: "1.0 T-GDI 100–120 к.с.",  years: [2015, 2018], manual: ["MT6"], auto: [] },
+        { engine: "hk-mpi",        label: "1.4 100 к.с.",            years: [2012, 2018], manual: ["MT6"], auto: [] },
+        { engine: "hk-mpi",        label: "1.6 MPI 120 к.с.",        years: [2012, 2018], manual: ["MT6"], auto: ["HK-AT6"] },
+        { engine: "hk-gdi",        label: "1.6 GDI 135 к.с.",        years: [2012, 2018], manual: ["MT6"], auto: ["HK-AT6", "HK-DCT7"],
+          note: "До 2015 р. — 6-ступ. автомат, з 2015 р. — робот DCT-7." },
+        { engine: "hk-tgdi-1.6",   label: "GT 1.6 T-GDI 204 к.с.",   years: [2013, 2018], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-small", label: "1.4 CRDi 90 к.с.",        years: [2012, 2018], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-small", label: "1.6 CRDi 110–136 к.с.",   years: [2012, 2018], manual: ["MT6"], auto: ["HK-AT6", "HK-DCT7"],
+          note: "До 2015 р. — 6-ступ. автомат, з 2015 р. — робот DCT-7." }
+      ]
+    },
+    {
+      generation: "III (CD)", years: [2018, null],
+      variants: [
+        { engine: "hk-mpi",         label: "1.4 MPI 100 к.с.",        years: [2018, 2020], manual: ["MT6"], auto: [] },
+        { engine: "hk-mpi",         label: "1.5 MPI 110 к.с.",        years: [2021, null], manual: ["MT6"], auto: [] },
+        { engine: "hk-tgdi-small",  label: "1.0 T-GDI 120 к.с.",      years: [2018, null], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-tgdi-small",  label: "1.4 T-GDI 140 к.с.",      years: [2018, 2020], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-smartstream", label: "1.5 T-GDI 160 к.с.",      years: [2020, null], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-tgdi-1.6",    label: "GT 1.6 T-GDI 204 к.с.",   years: [2019, null], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-small",  label: "1.6 CRDi 115–136 к.с.",   years: [2018, 2023], manual: ["MT6"], auto: ["HK-DCT7"] }
+      ]
+    }
+  ],
+
+  "Sportage": [
+    {
+      generation: "III (SL)", years: [2010, 2015],
+      variants: [
+        { engine: "hk-gdi",        label: "1.6 GDI 135 к.с.",           years: [2010, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-nu",         label: "2.0 MPI / GDI 163–166 к.с.", years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] },
+        { engine: "hk-crdi-small", label: "1.7 CRDi 115 к.с.",          years: [2010, 2015], manual: ["MT6"], auto: [] },
+        { engine: "hk-crdi-2.0",   label: "2.0 CRDi 136–184 к.с.",      years: [2010, 2015], manual: ["MT6"], auto: ["HK-AT6"] }
+      ]
+    },
+    {
+      generation: "IV (QL)", years: [2015, 2021],
+      variants: [
+        { engine: "hk-gdi",        label: "1.6 GDI 132 к.с.",         years: [2015, 2021], manual: ["MT6"], auto: [] },
+        { engine: "hk-tgdi-1.6",   label: "1.6 T-GDI 177 к.с.",       years: [2015, 2021], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-small", label: "1.6 / 1.7 CRDi 115–141 к.с.", years: [2015, 2021], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-crdi-2.0",   label: "2.0 CRDi 136–185 к.с.",    years: [2015, 2021], manual: ["MT6"], auto: ["HK-AT6", "HK-AT8"],
+          note: "До 2018 р. — 6-ступ. автомат, з 2018 р. — 8-ступ." }
+      ]
+    },
+    {
+      generation: "V (NQ5)", years: [2021, null],
+      variants: [
+        { engine: "hk-smartstream", label: "1.6 T-GDI 150–180 к.с.",   years: [2021, null], manual: ["MT6"], auto: ["HK-DCT7"] },
+        { engine: "hk-hybrid",      label: "1.6 T-GDI Hybrid 230 к.с.", years: [2021, null], manual: [], auto: ["HK-AT6"] },
+        { engine: "hk-hybrid",      label: "1.6 T-GDI Plug-in Hybrid 265 к.с.", years: [2022, null], manual: [], auto: ["HK-AT6"] },
+        { engine: "hk-crdi-small",  label: "1.6 CRDi 115–136 к.с.",    years: [2021, 2023], manual: ["MT6"], auto: ["HK-DCT7"] }
+      ]
+    }
+  ]
+};
+
 // ===== data/makes/mazda.js =====
 // Mazda: моделі → покоління → варіанти (двигун + роки + коробки).
 // Формат такий самий, як у skoda.js. Дані попередні, зібрані з відкритих джерел. Потребують звірки.
@@ -1614,8 +1908,7 @@ window.CarCheck.makes["Opel"] = {
         { engine: "opel-ecotec",    label: "1.4 Twinport 90 к.с.",       years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC"] },
         { engine: "opel-ecotec",    label: "1.6 Twinport 105–115 к.с.",  years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC", "OPEL-AT4"] },
         { engine: "opel-ecotec",    label: "1.8 125–140 к.с.",           years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-AT4"] },
-        { engine: "opel-1.6-turbo", label: "2.0 Turbo / OPC 170–240 к.с.", years: [2004, 2010], manual: ["MT6"], auto: [],
-          note: "У базі описано як турбомотор GM; для OPC 2.0 Turbo (Z20LEH) ризики схожі: перегрів, витрата оливи, турбіна." },
+        { engine: "opel-2.0-turbo", label: "2.0 Turbo / OPC 170–240 к.с.", years: [2004, 2010], manual: ["MT6"], auto: [] },
         { engine: "opel-1.3-cdti",  label: "1.3 CDTI 90 к.с.",           years: [2005, 2010], manual: ["MT6"], auto: [] },
         { engine: "opel-1.7-cdti",  label: "1.7 CDTI 80–125 к.с.",       years: [2004, 2014], manual: ["MT5", "MT6"], auto: [] },
         { engine: "opel-1.9-cdti",  label: "1.9 CDTI 100–150 к.с.",      years: [2004, 2010], manual: ["MT6"], auto: ["AISIN-AF40"] }
@@ -1662,8 +1955,7 @@ window.CarCheck.makes["Opel"] = {
         { engine: "opel-ecotec",    label: "1.6 / 1.8 115–140 к.с.",     years: [2008, 2014], manual: ["MT5", "MT6"], auto: ["GM-6T"] },
         { engine: "opel-1.4-turbo", label: "1.4 Turbo 140 к.с.",         years: [2010, 2017], manual: ["MT6"], auto: [] },
         { engine: "opel-1.6-turbo", label: "1.6 Turbo 170–180 к.с.",     years: [2008, 2017], manual: ["MT6"], auto: ["GM-6T"] },
-        { engine: "opel-1.6-turbo", label: "2.0 Turbo 220–250 к.с.",     years: [2008, 2017], manual: ["MT6"], auto: ["GM-6T"],
-          note: "У базі описано як турбомотор GM; для 2.0 Turbo (A20NHT) ризики схожі: перегрів, витрата оливи, турбіна." },
+        { engine: "opel-2.0-turbo", label: "2.0 Turbo 220–250 к.с.",     years: [2008, 2017], manual: ["MT6"], auto: ["GM-6T"] },
         { engine: "opel-2.0-cdti",  label: "2.0 CDTI 110–195 к.с.",      years: [2008, 2017], manual: ["MT6"], auto: ["AISIN-AF40"] },
         { engine: "opel-1.6-cdti",  label: "1.6 CDTI 120–136 к.с.",      years: [2015, 2017], manual: ["MT6"], auto: ["AISIN-AF40"] }
       ]
@@ -1672,7 +1964,7 @@ window.CarCheck.makes["Opel"] = {
       generation: "B", years: [2017, 2022],
       variants: [
         { engine: "opel-sge-turbo", label: "1.5 Turbo 140–165 к.с.",     years: [2017, 2022], manual: ["MT6"], auto: ["GM-6T"] },
-        { engine: "opel-1.6-turbo", label: "2.0 Turbo 200–260 к.с. 4x4", years: [2017, 2022], manual: [], auto: ["GM-8T"] },
+        { engine: "opel-2.0-turbo", label: "2.0 Turbo 200–260 к.с. 4x4", years: [2017, 2022], manual: [], auto: ["GM-8T"] },
         { engine: "opel-1.6-cdti",  label: "1.6 CDTI 110–136 к.с.",      years: [2017, 2020], manual: ["MT6"], auto: ["GM-6T"] },
         { engine: "opel-2.0-cdti",  label: "2.0 CDTI 170–210 к.с.",      years: [2017, 2022], manual: ["MT6"], auto: ["GM-8T"] }
       ]
