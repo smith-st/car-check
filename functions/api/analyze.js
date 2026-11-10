@@ -17,7 +17,7 @@ import { checkRateLimit } from "../../worker/limiter.js";
 import { fetchOtomoto } from "./otomoto.js";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
-const MAX_TOKENS = 4000;      // максимальна довжина відповіді Claude
+const MAX_TOKENS = 8000;      // максимальна довжина відповіді Claude
 const DEFAULT_MODEL = "claude-sonnet-5-5";
 
 const json = (data, status = 200) =>
@@ -280,7 +280,12 @@ export async function onRequestPost({ request, env }) {
   let r;
   try { r = JSON.parse(textBlock.text); } catch {
     console.log("Bad JSON from Claude", data.stop_reason, textBlock && textBlock.text.slice(0, 300));
-    return json({ error: "Не вдалося розібрати відповідь. Спробуйте ще раз." }, 502);
+    return json({
+      error: "Не вдалося розібрати відповідь. Спробуйте ще раз.",
+      stop_reason: data.stop_reason || null,
+      blocks: (data.content || []).map(b => b.type),
+      usage: data.usage || null
+    }, 502);
   }
   console.log("usage", JSON.stringify(data.usage || {}));
 
