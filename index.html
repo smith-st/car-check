@@ -103,7 +103,7 @@
 
     .grid {
       display: grid; gap: 14px;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
     }
     .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
     .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -153,8 +153,27 @@
     }
     .result.show { display: block; animation: rise .25s ease-out; }
     @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    .result h3 { font-family: "Unbounded", sans-serif; font-size: 18px; font-weight: 500; margin-bottom: 6px; }
-    .result p { color: var(--muted); font-size: 15px; }
+    .result > h3 { font-family: "Unbounded", sans-serif; font-size: 18px; font-weight: 500; margin-bottom: 6px; }
+    .result > p { color: var(--muted); font-size: 15px; }
+    .report { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .rcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+    .rcard .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 6px; }
+    .rcard h4 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .rcard .meta { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+    .rcard p { font-size: 15px; color: var(--muted); margin-bottom: 10px; }
+    .rcard ul { list-style: none; display: grid; gap: 6px; margin-bottom: 10px; }
+    .rcard li { font-size: 14.5px; padding-left: 20px; position: relative; }
+    .rcard li::before { content: "!"; position: absolute; left: 0; top: 0; width: 14px; text-align: center; font-weight: 800; color: var(--err); }
+    .rcard ul.chk li::before { content: "✓"; color: var(--ok); }
+    .rcard .sub { font-size: 13px; font-weight: 700; color: var(--text); margin: 4px 0 6px; }
+    .gb + .gb { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 4px; }
+    .note {
+      grid-column: 1 / -1; font-size: 14.5px; padding: 14px 16px; border-radius: 12px;
+      background: rgba(255,176,32,.08); border: 1px solid rgba(255,176,32,.3);
+    }
+    .note b { color: var(--accent); }
+    .disclaimer { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+    @media (max-width: 760px) { .report { grid-template-columns: 1fr; } }
 
     /* ---------- Features ---------- */
     .section { max-width: 1120px; margin: 0 auto 72px; padding: 0 16px; }
@@ -260,13 +279,17 @@
             <label for="engine">Двигун</label>
             <select id="engine" disabled><option value="">Спочатку рік</option></select>
           </div>
+          <div class="field">
+            <label for="gearbox">Коробка</label>
+            <select id="gearbox" disabled><option value="">Спочатку двигун</option></select>
+          </div>
         </div>
         <div class="actions">
           <button class="btn" id="go-manual" disabled>
             Перевірити
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </button>
-          <span class="hint">Заповніть усі поля</span>
+          <span class="hint" id="hint">Заповніть усі поля</span>
         </div>
       </div>
 
@@ -293,6 +316,7 @@
       <div class="result" id="result" aria-live="polite">
         <h3 id="result-title"></h3>
         <p id="result-text"></p>
+        <div class="report" id="report"></div>
       </div>
     </div>
   </section>
@@ -334,105 +358,9 @@
     </div>
   </footer>
 
-  <script>
-    // Тестові дані: пізніше замінимо на справжню базу
-    const CARS = {
-      "Audi":       { "A4": { years: [2008, 2023], engines: ["1.8 TFSI", "2.0 TFSI", "2.0 TDI", "3.0 TDI"] },
-                      "A6": { years: [2011, 2024], engines: ["2.0 TFSI", "2.0 TDI", "3.0 TDI"] } },
-      "BMW":        { "3 Series": { years: [2005, 2024], engines: ["318i", "320i", "320d", "330d"] },
-                      "5 Series": { years: [2010, 2024], engines: ["520i", "520d", "530d", "540i"] } },
-      "Ford":       { "Focus": { years: [2004, 2022], engines: ["1.0 EcoBoost", "1.6 Ti-VCT", "1.5 TDCi", "2.0 TDCi"] } },
-      "Opel":       { "Astra": { years: [2004, 2024], engines: ["1.4 Turbo", "1.6", "1.6 CDTI", "2.0 CDTI"] } },
-      "Renault":    { "Megane": { years: [2008, 2023], engines: ["1.2 TCe", "1.3 TCe", "1.5 dCi", "1.6 dCi"] } },
-      "Skoda":      { "Octavia": { years: [2004, 2024], engines: ["1.0 TSI", "1.4 TSI", "1.5 TSI", "1.6 TDI", "2.0 TDI"] },
-                      "Superb":  { years: [2008, 2024], engines: ["1.4 TSI", "2.0 TSI", "2.0 TDI"] } },
-      "Toyota":     { "Corolla": { years: [2006, 2024], engines: ["1.33", "1.6", "1.8 Hybrid", "2.0 Hybrid"] },
-                      "RAV4":    { years: [2006, 2024], engines: ["2.0", "2.2 D-4D", "2.5 Hybrid"] } },
-      "Volkswagen": { "Golf":   { years: [2004, 2024], engines: ["1.0 TSI", "1.4 TSI", "1.5 TSI", "1.6 TDI", "2.0 TDI"] },
-                      "Passat": { years: [2005, 2024], engines: ["1.4 TSI", "1.8 TSI", "2.0 TSI", "2.0 TDI"] } }
-    };
-
-    const $ = id => document.getElementById(id);
-    const make = $("make"), model = $("model"), year = $("year"), engine = $("engine");
-    const goManual = $("go-manual");
-
-    function fill(sel, items, placeholder) {
-      sel.innerHTML = `<option value="">${placeholder}</option>` +
-        items.map(v => `<option value="${v}">${v}</option>`).join("");
-      sel.disabled = items.length === 0;
-    }
-    function reset(sel, placeholder) { fill(sel, [], placeholder); }
-    function updateBtn() {
-      goManual.disabled = !(make.value && model.value && year.value && engine.value);
-    }
-
-    fill(make, Object.keys(CARS), "Оберіть марку");
-
-    make.addEventListener("change", () => {
-      make.value ? fill(model, Object.keys(CARS[make.value]), "Оберіть модель")
-                 : reset(model, "Спочатку марка");
-      reset(year, "Спочатку модель");
-      reset(engine, "Спочатку рік");
-      updateBtn();
-    });
-    model.addEventListener("change", () => {
-      if (model.value) {
-        const [from, to] = CARS[make.value][model.value].years;
-        const ys = []; for (let y = to; y >= from; y--) ys.push(y);
-        fill(year, ys, "Оберіть рік");
-      } else reset(year, "Спочатку модель");
-      reset(engine, "Спочатку рік");
-      updateBtn();
-    });
-    year.addEventListener("change", () => {
-      year.value ? fill(engine, CARS[make.value][model.value].engines, "Оберіть двигун")
-                 : reset(engine, "Спочатку рік");
-      updateBtn();
-    });
-    engine.addEventListener("change", updateBtn);
-
-    function showResult(title, text) {
-      $("result-title").textContent = title;
-      $("result-text").textContent = text;
-      const r = $("result");
-      r.classList.remove("show"); void r.offsetWidth; r.classList.add("show");
-    }
-
-    goManual.addEventListener("click", () => {
-      showResult(`${make.value} ${model.value}, ${year.value}, ${engine.value}`,
-        "Звіт по цьому авто з'явиться тут. Зараз це тестова сторінка — логіку перевірки підключимо наступним кроком.");
-    });
-
-    // Tabs
-    const tabs = [["t-manual", "tab-manual"], ["t-link", "tab-link"]];
-    tabs.forEach(([t, p]) => $(t).addEventListener("click", () => {
-      tabs.forEach(([t2, p2]) => {
-        $(t2).setAttribute("aria-selected", t2 === t);
-        $(p2).hidden = p2 !== p;
-      });
-      $("result").classList.remove("show");
-    }));
-
-    // Listing link
-    const ALLOWED = ["otomoto.pl", "auto.ria.com", "olx.pl"];
-    $("go-link").addEventListener("click", () => {
-      const msg = $("url-msg");
-      msg.className = "msg";
-      let u;
-      try { u = new URL($("url").value.trim()); } catch {
-        msg.textContent = "Вставте коректне посилання."; msg.classList.add("err"); return;
-      }
-      const host = u.hostname.replace(/^www\./, "");
-      const site = ALLOWED.find(d => host === d || host.endsWith("." + d));
-      if (!site) {
-        msg.textContent = "Поки що підтримуємо лише otomoto.pl, auto.ria.com та olx.pl.";
-        msg.classList.add("err"); return;
-      }
-      msg.textContent = `Посилання з ${site} прийнято.`; msg.classList.add("ok");
-      showResult("Оголошення отримано",
-        "Тут з'являться дані з оголошення та звіт по авто. Зараз це тестова сторінка — розбір оголошень підключимо наступним кроком.");
-    });
-    $("url").addEventListener("keydown", e => { if (e.key === "Enter") $("go-link").click(); });
-  </script>
+  <script src="data/engines.js"></script>
+  <script src="data/gearboxes.js"></script>
+  <script src="data/makes/skoda.js"></script>
+  <script src="scripts/app.js"></script>
 </body>
 </html>

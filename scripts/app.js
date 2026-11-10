@@ -1,0 +1,183 @@
+// Логіка головної сторінки CarCheck.
+// Дані підключаються з data/*.js і лежать у window.CarCheck.
+(function () {
+  const DB = window.CarCheck;
+  const NOW = new Date().getFullYear();
+  const $ = id => document.getElementById(id);
+  const make = $("make"), model = $("model"), year = $("year"), engine = $("engine"), gearbox = $("gearbox");
+  const goManual = $("go-manual");
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const yTo = y => (y === null ? NOW : y);
+  const inRange = (y, r) => y >= r[0] && y <= yTo(r[1]);
+
+  function fill(sel, items, placeholder) {
+    // items: [{value, label}] або рядки
+    sel.innerHTML = `<option value="">${placeholder}</option>` +
+      items.map(i => typeof i === "object"
+        ? `<option value="${esc(i.value)}">${esc(i.label)}</option>`
+        : `<option value="${esc(i)}">${esc(i)}</option>`).join("");
+    sel.disabled = items.length === 0;
+  }
+  const reset = (sel, placeholder) => fill(sel, [], placeholder);
+  const updateBtn = () => {
+    goManual.disabled = !(make.value && model.value && year.value && engine.value && gearbox.value);
+    $("hint").hidden = !goManual.disabled;
+  };
+
+  // Варіанти, доступні для обраного року (з урахуванням покоління)
+  function variantsFor() {
+    const gens = DB.makes[make.value][model.value];
+    const y = Number(year.value);
+    const out = [];
+    gens.forEach((g, gi) => {
+      if (!inRange(y, g.years)) return;
+      g.variants.forEach((v, vi) => {
+        if (inRange(y, v.years)) out.push({ gen: g, v, id: `${gi}:${vi}` });
+      });
+    });
+    return out;
+  }
+  function currentVariant() {
+    const [gi, vi] = engine.value.split(":").map(Number);
+    const g = DB.makes[make.value][model.value][gi];
+    return { gen: g, v: g.variants[vi] };
+  }
+
+  fill(make, Object.keys(DB.makes), "Оберіть марку");
+
+  make.addEventListener("change", () => {
+    make.value ? fill(model, Object.keys(DB.makes[make.value]), "Оберіть модель")
+               : reset(model, "Спочатку марка");
+    reset(year, "Спочатку модель"); reset(engine, "Спочатку рік"); reset(gearbox, "Спочатку двигун");
+    updateBtn();
+  });
+
+  model.addEventListener("change", () => {
+    if (model.value) {
+      const gens = DB.makes[make.value][model.value];
+      const from = Math.min(...gens.map(g => g.years[0]));
+      const to = Math.max(...gens.map(g => yTo(g.years[1])));
+      const ys = [];
+      for (let y = to; y >= from; y--) ys.push(y);
+      fill(year, ys, "Оберіть рік");
+    } else reset(year, "Спочатку модель");
+    reset(engine, "Спочатку рік"); reset(gearbox, "Спочатку двигун");
+    updateBtn();
+  });
+
+  year.addEventListener("change", () => {
+    if (year.value) {
+      const list = variantsFor();
+      // Якщо в цьому році випускалось два покоління — підписуємо покоління
+      const multiGen = new Set(list.map(x => x.gen.generation)).size > 1;
+      fill(engine, list.map(x => ({
+        value: x.id,
+        label: multiGen ? `${x.v.label} — ${x.gen.generation}` : x.v.label
+      })), "Оберіть двигун");
+    } else reset(engine, "Спочатку рік");
+    reset(gearbox, "Спочатку двигун");
+    updateBtn();
+  });
+
+  engine.addEventListener("change", () => {
+    if (engine.value) {
+      const { v } = currentVariant();
+      const opts = [];
+      if (v.manual.length) opts.push({ value: "manual", label: "Механіка" });
+      if (v.auto.length) opts.push({ value: "auto", label: "Автомат" });
+      fill(gearbox, opts, "Оберіть коробку");
+      if (opts.length === 1) gearbox.value = opts[0].value;
+    } else reset(gearbox, "Спочатку двигун");
+    updateBtn();
+  });
+  gearbox.addEventListener("change", updateBtn);
+
+  // ---------- Звіт ----------
+  const list = (items, cls) => items && items.length
+    ? `<ul${cls ? ` class="${cls}"` : ""}>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+
+  function gearboxBlock(code) {
+    const g = DB.gearboxes[code];
+    if (!g) return `<div class="gb"><h4>${esc(code)}</h4></div>`;
+    return `<div class="gb">
+      <h4>${esc(g.name)}</h4>
+      <div class="meta">${esc(g.kind)}</div>
+      <p>${esc(g.summary)}</p>
+      <div class="sub">Типові проблеми</div>${list(g.issues)}
+      <div class="sub">Що перевірити на огляді</div>${list(g.check, "chk")}
+    </div>`;
+  }
+
+  function renderReport() {
+    const { gen, v } = currentVariant();
+    const e = DB.engines[v.engine] || { name: v.label, issues: [] };
+    const codes = v[gearbox.value];
+    const multi = codes.length > 1;
+
+    $("result-title").textContent = `${make.value} ${model.value} ${gen.generation}, ${year.value}`;
+    $("result-text").textContent = `${v.label} · ${gearbox.value === "auto" ? "автомат" : "механіка"}`;
+
+    $("report").innerHTML = `
+      ${multi ? `<div class="note"><b>Можлива одна з ${codes.length} коробок.</b>
+        ${v.note ? esc(v.note) + " " : ""}Точно дізнатися можна за кодом коробки на шильдику агрегату,
+        за PR-кодами на наклейці в багажнику (під підлогою, біля запаски) або в сервісній книжці.</div>`
+        : v.note ? `<div class="note">${esc(v.note)}</div>` : ""}
+      <div class="rcard">
+        <div class="lbl">Двигун</div>
+        <h4>${esc(e.name)}</h4>
+        <div class="meta">${esc([e.family, e.fuel, e.timing && "ГРМ: " + e.timing].filter(Boolean).join(" · "))}</div>
+        <p>${esc(e.summary || "")}</p>
+        <div class="sub">Типові проблеми</div>${list(e.issues)}
+      </div>
+      <div class="rcard">
+        <div class="lbl">Коробка передач</div>
+        ${codes.map(gearboxBlock).join("")}
+      </div>
+      <p class="disclaimer">Дані попередні й зібрані з відкритих джерел. Перед покупкою перевіряйте конкретне авто в сервісі.</p>`;
+
+    const r = $("result");
+    r.classList.remove("show"); void r.offsetWidth; r.classList.add("show");
+    r.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  goManual.addEventListener("click", renderReport);
+
+  function showSimple(title, text) {
+    $("result-title").textContent = title;
+    $("result-text").textContent = text;
+    $("report").innerHTML = "";
+    const r = $("result");
+    r.classList.remove("show"); void r.offsetWidth; r.classList.add("show");
+  }
+
+  // ---------- Вкладки ----------
+  const tabs = [["t-manual", "tab-manual"], ["t-link", "tab-link"]];
+  tabs.forEach(([t, p]) => $(t).addEventListener("click", () => {
+    tabs.forEach(([t2, p2]) => {
+      $(t2).setAttribute("aria-selected", t2 === t);
+      $(p2).hidden = p2 !== p;
+    });
+    $("result").classList.remove("show");
+  }));
+
+  // ---------- Посилання на оголошення ----------
+  const ALLOWED = ["otomoto.pl", "auto.ria.com", "olx.pl"];
+  $("go-link").addEventListener("click", () => {
+    const msg = $("url-msg");
+    msg.className = "msg";
+    let u;
+    try { u = new URL($("url").value.trim()); } catch {
+      msg.textContent = "Вставте коректне посилання."; msg.classList.add("err"); return;
+    }
+    const host = u.hostname.replace(/^www\./, "");
+    const site = ALLOWED.find(d => host === d || host.endsWith("." + d));
+    if (!site) {
+      msg.textContent = "Поки що підтримуємо лише otomoto.pl, auto.ria.com та olx.pl.";
+      msg.classList.add("err"); return;
+    }
+    msg.textContent = `Посилання з ${site} прийнято.`; msg.classList.add("ok");
+    showSimple("Оголошення отримано",
+      "Тут з'являться дані з оголошення та звіт по авто. Розбір оголошень підключимо наступним кроком.");
+  });
+  $("url").addEventListener("keydown", e => { if (e.key === "Enter") $("go-link").click(); });
+})();
