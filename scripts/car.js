@@ -83,6 +83,9 @@
     return { x, href: carUrl({ make: P.make, model: P.model, gen: gen.generation, engine: x.label, year, gb }) };
   });
 
+  // Аналіз оголошення (якщо користувач прийшов з вкладки «Вставити оголошення»)
+  const ai = window.CarCheckAI ? CarCheckAI.load({ make: P.make, model: P.model, gen: gen.generation, engine: v.label, year: P.year }) : null;
+
   const list = items => `<ul class="issues">${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
 
   app.innerHTML = `
@@ -115,6 +118,14 @@
         ${v.note ? esc(v.note) + " " : ""}
         ${codes.length > 1 ? "Точно дізнатися можна за кодом на шильдику коробки, за PR-кодами на наклейці в багажнику (під підлогою, біля запаски) або в сервісній книжці." : ""}
       </div>` : ""}
+
+      ${ai ? `
+      <section class="block">
+        <div class="lbl">Аналіз оголошення <span class="ai-badge">Claude</span></div>
+        <h2>Що видно з оголошення</h2>
+        ${ai.match_confidence === "low" ? `<p>Авто з оголошення розпізнано неточно — перевірте, що рік і двигун збігаються.</p>` : ""}
+        ${CarCheckAI.render(ai)}
+      </section>` : ""}
 
       <section class="block">
         <div class="lbl">Коротко</div>

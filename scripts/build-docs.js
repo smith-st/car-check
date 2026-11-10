@@ -1,5 +1,7 @@
-// Генерує docs/korobky.md — «яка коробка на яких моделях і роках» — з файлів data/.
-// Запуск: node scripts/build-docs.js
+// Генерує з файлів data/:
+//   docs/korobky.md    — «яка коробка на яких моделях і роках»
+//   data/catalog.json  — компактний список авто з бази для бекенда (/api/analyze)
+// Запуск після будь-якої зміни даних: node scripts/build-docs.js
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
@@ -65,3 +67,16 @@ out.push("");
 fs.mkdirSync(path.join(root, "docs"), { recursive: true });
 fs.writeFileSync(path.join(root, "docs/korobky.md"), out.join("\n"));
 console.log("docs/korobky.md: " + out.length + " рядків");
+
+// ---------- data/catalog.json ----------
+const catalog = [];
+for (const [make, models] of Object.entries(DB.makes))
+  for (const [model, gens] of Object.entries(models))
+    for (const g of gens)
+      for (const v of g.variants)
+        catalog.push({
+          make, model, generation: g.generation, engine: v.label,
+          years: v.years, manual: v.manual.length > 0, auto: v.auto.length > 0
+        });
+fs.writeFileSync(path.join(root, "data/catalog.json"), JSON.stringify(catalog, null, 1) + "\n");
+console.log("data/catalog.json: " + catalog.length + " варіантів");

@@ -315,3 +315,38 @@ footer .wrap {
   header, .car-actions, .crumbs, footer { display: none; }
   body { background: #fff; color: #000; }
 }
+
+/* ================= Аналіз оголошення ================= */
+textarea {
+  width: 100%; font: 500 15.5px/1.5 "Manrope", sans-serif; color: var(--text);
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px; outline: none; resize: vertical; min-height: 130px;
+  transition: border-color .15s, box-shadow .15s;
+}
+textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,176,32,.18); }
+textarea::placeholder { color: #5d6672; }
+.field .opt { font-weight: 500; color: #5d6672; }
+.btn.loading { pointer-events: none; opacity: .75; }
+.btn.loading svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ai { display: grid; gap: 12px; }
+.ai-summary { font-size: 15.5px; }
+.ai-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ai-col { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.ai-col h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 10px; }
+.ai-col ul { list-style: none; display: grid; gap: 8px; }
+.ai-col li { font-size: 14.5px; padding-left: 20px; position: relative; }
+.ai-col li::before { position: absolute; left: 0; font-weight: 800; }
+.ai-col.bad li::before { content: "!"; color: var(--err); left: 4px; }
+.ai-col.bad li.medium::before { color: var(--accent); }
+.ai-col.bad li.low::before { color: var(--muted); }
+.ai-col.good li::before { content: "✓"; color: var(--ok); }
+.ai-col.ask li::before { content: "?"; color: var(--accent); left: 3px; }
+.ai-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-facts span { font-size: 13.5px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; }
+.ai-badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700;
+  color: var(--accent); background: rgba(255,176,32,.1); border-radius: 6px; padding: 3px 8px;
+}
+@media (max-width: 900px) { .ai-grid { grid-template-columns: 1fr; } }
