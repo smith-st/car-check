@@ -44,11 +44,16 @@ export async function fetchOtomoto(url, maxChars = 8000) {
   }
 
   const html = await res.text();
-  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-  if (!m) return { ok: false, reason: "blocked", message: "Otomoto показав сторінку перевірки замість оголошення." };
+  // Шукаємо дані простим indexOf замість регулярного виразу — сторінка велика (~600 КБ),
+  // а безкоштовний план Cloudflare обмежує процесорний час запиту.
+  const marker = '<script id="__NEXT_DATA__"';
+  const at = html.indexOf(marker);
+  const start = at < 0 ? -1 : html.indexOf(">", at) + 1;
+  const end = start > 0 ? html.indexOf("</script>", start) : -1;
+  if (at < 0 || end < 0) return { ok: false, reason: "blocked", message: "Otomoto показав сторінку перевірки замість оголошення." };
 
   let a;
-  try { a = JSON.parse(m[1]).props.pageProps.advert; } catch { a = null; }
+  try { a = JSON.parse(html.slice(start, end)).props.pageProps.advert; } catch { a = null; }
   if (!a || !a.title) return { ok: false, reason: "error", message: "Не вдалося знайти дані оголошення на сторінці." };
   if (a.status && a.status !== "ACTIVE") {
     return { ok: false, reason: "gone", message: "Оголошення вже неактивне на Otomoto." };

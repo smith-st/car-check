@@ -16,8 +16,12 @@ window.CarCheckAI = (function () {
     }
     let data = null;
     try { data = await res.json(); } catch { /* не JSON */ }
-    if (res.status === 404 || res.status === 405 || !data) {
-      throw new Error("Аналіз оголошень працює лише на версії сайту з бекендом (Cloudflare).");
+    if (!data) {
+      // Бекенда немає взагалі (статичний хостинг) — 404/405 без JSON;
+      // інше (5xx, сторінка помилки Cloudflare) — тимчасовий збій сервера
+      throw new Error(res.status === 404 || res.status === 405
+        ? "Аналіз оголошень працює лише на версії сайту з бекендом (Cloudflare)."
+        : "Сервер тимчасово не відповів. Спробуйте ще раз за хвилину.");
     }
     if (!res.ok || data.error) {
       const err = new Error(data.error || "Помилка аналізу.");

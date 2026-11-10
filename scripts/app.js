@@ -124,9 +124,21 @@
   const listing = $("listing");
   const goLink = $("go-link");
   const setMsg = (text, cls) => { const m = $("url-msg"); m.className = "msg" + (cls ? " " + cls : ""); m.textContent = text; };
-  const noInfo = (makeName) => showSimple(
-    makeName ? `По цій моделі ${makeName} інформації поки немає` : "По цьому авто інформації поки немає",
-    `Зараз доступні: ${availableList()}. Ми поступово додаємо нові марки й моделі.`);
+  // Пояснюємо, чого саме бракує: марки, моделі чи конкретної версії (двигун/рік)
+  const noInfo = (makeName, l) => {
+    const mk = makeName && Object.keys(DB.makes).find(m => slug(m) === slug(makeName));
+    const md = mk && l && l.model && Object.keys(DB.makes[mk]).find(m => slug(l.model).startsWith(slug(m)));
+    let title = "По цьому авто інформації поки немає";
+    if (mk && md) {
+      const ver = [l.engine, l.year && `${l.year} р.`].filter(Boolean).join(", ");
+      title = `${mk} ${md} є в базі, але цієї версії${ver ? ` (${ver})` : ""} поки немає`;
+    } else if (mk) {
+      title = l && l.model ? `${mk} ${l.model} поки немає в базі` : `По цій моделі ${mk} інформації поки немає`;
+    } else if (l && l.make) {
+      title = `${l.make}${l.model ? " " + l.model : ""} поки немає в базі`;
+    }
+    showSimple(title, `Зараз доступні: ${availableList()}. Ми поступово додаємо нові марки й моделі.`);
+  };
   const showText = () => { $("text-wrap").hidden = false; $("show-text").hidden = true; };
   $("show-text").addEventListener("click", () => { showText(); listing.focus(); });
 
@@ -160,7 +172,12 @@
       if (!check.ok) return setMsg(check.message, "err");
       // Марка й модель з адреси: якщо їх немає в базі — одразу кажемо, без аналізу
       const found = detectCar(new URL(rawUrl).pathname);
-      if (!found || !found.model) return noInfo(found && found.make);
+      if (!found || !found.model) {
+        // Модель з адреси: otomoto.pl/…/oferta/<марка>-<модель>-…
+        const tail = new URL(rawUrl).pathname.split("/").pop().replace(/-ID[0-9A-Za-z]+\.html$/, "").split("-");
+        const guess = found ? tail.slice(slug(found.make).split("-").length).slice(0, 1).join(" ") : "";
+        return noInfo(found && found.make, found ? { model: guess ? guess.charAt(0).toUpperCase() + guess.slice(1) : null } : null);
+      }
     }
 
     goLink.classList.add("loading");
@@ -178,10 +195,7 @@
 
     if (!r.is_car_listing) return setMsg("Схоже, це не оголошення про продаж авто.", "err");
     setMsg("");
-    if (r.not_in_db || !r.match) {
-      const known = r.listing && Object.keys(DB.makes).find(mk => slug(mk) === slug(r.listing.make || ""));
-      return noInfo(known || null);
-    }
+    if (r.not_in_db || !r.match) return noInfo(r.listing && r.listing.make, r.listing);
     CarCheckAI.save(r);
     if (r.match.gb) {
       location.href = "car.html?" + new URLSearchParams(r.match).toString();
