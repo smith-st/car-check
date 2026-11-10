@@ -189,6 +189,118 @@ Object.assign(window.CarCheck.engines, {
   }
 });
 
+// ===== data/engines/opel.js =====
+// Двигуни Opel (GM): Ecotec, Turbo, CDTI. Нові Astra L і Corsa F мають двигуни PSA — див. psa.js.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.engines, {
+  "opel-ecotec": {
+    name: "1.0 / 1.2 / 1.4 / 1.6 / 1.8 Ecotec (атмосферні)",
+    family: "GM Family 0 / Family 1",
+    fuel: "Бензин",
+    timing: "ремінь (1.0 / 1.2 у Corsa — ланцюг)",
+    summary: "Прості атмосферні мотори Astra, Corsa й Insignia. Недорогі в ремонті, добре переносять ГБО.",
+    issues: [
+      "Течі оливи з-під кришки клапанів і корпусу термостата",
+      "Відмова клапанів зміни фаз (VVT), брязкіт на холодну",
+      "1.8: модуль запалювання; 1.0/1.2 у Corsa: розтягнення ланцюга"
+    ]
+  },
+  "opel-1.4-turbo": {
+    name: "1.4 Turbo (A14NET, B14NET)",
+    family: "GM Family 0",
+    fuel: "Бензин, турбо",
+    timing: "ланцюг",
+    summary: "Основний турбомотор Astra J/K, Insignia й Mokka 2010–2019 рр. Динамічний, але чутливий до обслуговування.",
+    issues: [
+      "Відмова клапана вентиляції картера (PCV) у кришці клапанів → витрата оливи, свист",
+      "Розтягнення ланцюга ГРМ",
+      "Течі охолоджувальної рідини з турбіни й корпусу термостата"
+    ]
+  },
+  "opel-1.6-turbo": {
+    name: "1.6 Turbo (A16LET, A16XHT)",
+    family: "GM Family 1",
+    fuel: "Бензин, турбо",
+    timing: "ремінь (A16LET) / ланцюг (A16XHT SIDI)",
+    summary: "Потужний турбомотор Astra J/K та Insignia. Швидкий, але має відомі проблеми.",
+    issues: [
+      "A16LET: тріщини поршнів, витрата оливи",
+      "Течі антифризу, перегрів",
+      "Знос турбіни на великих пробігах"
+    ]
+  },
+  "opel-sge-turbo": {
+    name: "1.0 / 1.2 / 1.4 Turbo (B10XFT, B14XFT, F12SHT, F14SHT)",
+    family: "GM Small Gasoline Engine",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ремінь",
+    summary: "Новіші невеликі турбомотори Astra K і Corsa E (2015–2021). Економні; статистики менше, ніж у старих моторів.",
+    issues: [
+      "Нагар на впускних клапанах (безпосередній вприск)",
+      "Течі оливи й антифризу",
+      "1.0 (3 циліндри): вібрації на холостих"
+    ]
+  },
+  "opel-1.3-cdti": {
+    name: "1.3 CDTI (Fiat Multijet)",
+    family: "Fiat SDE",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Маленький дизель Fiat у Corsa й Astra. Економний, але не любить міських поїздок.",
+    issues: ["Розтягнення ланцюга ГРМ", "Забивання DPF і клапана EGR", "Форсунки, оливний насос"]
+  },
+  "opel-1.7-cdti": {
+    name: "1.7 CDTI (Isuzu)",
+    family: "Isuzu Circle L",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь",
+    summary: "Дизель Isuzu в Astra H/J і Corsa D. Витривалий, але має свої слабкі місця.",
+    issues: ["Форсунки й насос паливного тиску", "Двомасовий маховик, турбіна", "Клапан EGR, DPF у новіших версіях"]
+  },
+  "opel-1.9-cdti": {
+    name: "1.9 CDTI (Fiat JTD)",
+    family: "Fiat JTD",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь",
+    summary: "Дизель Fiat в Astra H, Vectra й Zafira. Сильний, але зі знаменитими «болячками».",
+    issues: [
+      "Вихровi заслінки впускного колектора (можуть зламатися й потрапити в циліндр)",
+      "Клапан EGR, DPF",
+      "Двомасовий маховик, течі з радіатора EGR"
+    ]
+  },
+  "opel-2.0-cdti": {
+    name: "2.0 CDTI (A20DTH, B20DTH)",
+    family: "GM Family B",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Основний дизель Insignia A/B і Astra J. Потужний, але потребує уважного обслуговування.",
+    issues: [
+      "Двомасовий маховик і зчеплення",
+      "Натягувач ланцюга ГРМ, течі оливи",
+      "DPF, клапан і радіатор EGR, турбіна"
+    ]
+  },
+  "opel-1.6-cdti": {
+    name: "1.6 CDTI «Whisper» (B16DTH, B16DTL)",
+    family: "GM Family B Medium",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюг",
+    summary: "Тихий сучасний дизель Astra J/K та Insignia B (2013–2019). Загалом надійний.",
+    issues: ["DPF при міській експлуатації", "Система AdBlue (SCR) у новіших версіях", "Двомасовий маховик"]
+  },
+  "opel-1.5-diesel": {
+    name: "1.5 Diesel (D15DT, 3 цил.)",
+    family: "GM",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь",
+    summary: "3-циліндровий дизель Astra K після рестайлінгу (2019–2021). Економний; статистики мало.",
+    issues: ["DPF і AdBlue при міській експлуатації", "Вібрації (3 циліндри)", "Мало статистики на великих пробігах"]
+  }
+});
+
 // ===== data/engines/psa.js =====
 // Дизелі PSA (HDi): стоять у Peugeot, Citroën, а також Ford (TDCi), Mazda (MZ-CD) і Volvo.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -218,6 +330,55 @@ Object.assign(window.CarCheck.engines, {
       "Масляне голодування турбіни через забитий сітчастий фільтр її живлення",
       "Забивання DPF при міській експлуатації"
     ]
+  }
+});
+
+// ---------- Бензинові PSA та нові дизелі ----------
+Object.assign(window.CarCheck.engines, {
+  "psa-puretech": {
+    name: "1.2 PureTech (EB2, 3 цил.)",
+    family: "PSA EB",
+    fuel: "Бензин, турбо (безпосередній вприск)",
+    timing: "ремінь в оливі (турбоверсії до ~2023 р.), ланцюг з 2024 р.",
+    summary: "3-циліндровий мотор Peugeot, Citroën, Opel (Astra L, Corsa F). Економний і динамічний, але турбоверсії з ременем в оливі — одні з найпроблемніших сучасних моторів.",
+    issues: [
+      "Розпад ременя ГРМ в оливі → забитий оливоприймач, падіння тиску, руйнування мотора",
+      "Велика витрата оливи (кільця, нагар)",
+      "Помилки датчиків тиску оливи й розподільних валів; насос вакууму гальм",
+      "Атмосферні версії 75–82 к.с. (ланцюг) — значно надійніші"
+    ]
+  },
+  "psa-thp": {
+    name: "1.6 THP / VTi (Prince, EP6)",
+    family: "PSA/BMW Prince",
+    fuel: "Бензин (THP — турбо, безпосередній вприск)",
+    timing: "ланцюг",
+    summary: "Мотор, спільний з BMW/MINI. Динамічний THP і атмосферний VTi; обидва мають відомі проблеми з ланцюгом.",
+    issues: [
+      "Розтягнення ланцюга ГРМ і натягувача (брязкіт на холодну)",
+      "THP: велика витрата оливи, нагар на клапанах, вакуумний насос",
+      "Помпа охолодження, термостат"
+    ]
+  },
+  "psa-dv5": {
+    name: "1.5 BlueHDi (DV5)",
+    family: "PSA DV5",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь в оливі",
+    summary: "Сучасний дизель Peugeot, Citroën, Opel з 2017 р. з AdBlue. Економний; частина моторів мала проблеми з ременем.",
+    issues: [
+      "Знос ременя ГРМ в оливі (ранні мотори 2017–2019)",
+      "Система AdBlue: бак і насос (поширена помилка «запуск неможливий через N км»)",
+      "DPF при міській їзді"
+    ]
+  },
+  "psa-phev": {
+    name: "1.6 PureTech Hybrid (PHEV)",
+    family: "PSA EP6 + електро",
+    fuel: "Бензин + електро (плагін-гібрид)",
+    timing: "ланцюг",
+    summary: "Плагін-гібрид Peugeot 308/3008/508 та Opel Astra L з 2019–2021 рр. Складна система; статистики поки мало.",
+    issues: ["Помилки гібридної системи й зарядки", "Стан високовольтної батареї", "Проблеми ланцюга ГРМ базового мотора 1.6"]
   }
 });
 
@@ -810,6 +971,130 @@ Object.assign(window.CarCheck.gearboxes, {
   }
 });
 
+// ===== data/gearboxes/opel.js =====
+// Автоматичні коробки Opel (GM): робот Easytronic, гідромеханічні автомати GM і Aisin, варіатор.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.gearboxes, {
+  "OPEL-EASYTRONIC": {
+    name: "Робот Easytronic",
+    type: "auto",
+    kind: "Роботизована механіка з одним зчепленням",
+    summary: "Механічна коробка з електроприводом зчеплення в Corsa D/E та Astra H. Повільна й примхлива.",
+    issues: [
+      "Відмова актуатора зчеплення або перемикання",
+      "Швидкий знос зчеплення, потреба в адаптаціях",
+      "Ривки й затримки при перемиканні"
+    ],
+    check: ["Передачі вмикаються одразу, без помилок на панелі", "Рушання плавне, без пробуксовки"]
+  },
+  "OPEL-AT4": {
+    name: "АКПП 4-ступ. Aisin (AF17)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Простий 4-ступ. автомат у Corsa D та Astra H. Витривалий, але «задумливий».",
+    issues: ["Поштовхи при перемиканні з «вічною» оливою", "Перегрів при агресивній їзді"],
+    check: ["Перемикання м'які, без ударів", "Бажано підтвердження заміни оливи"]
+  },
+  "GM-6T": {
+    name: "АКПП 6-ступ. GM 6T40/6T45",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Автомат GM в Astra J/K, Insignia й Mokka. Має відомий дефект хвилястої пластини.",
+    issues: [
+      "Поломка хвилястої пластини пакета 3-5-R → зникає задня й 3–5 передачі",
+      "Поштовхи й вібрації при перемиканні, перегрів",
+      "Відмова соленоїдів і блока керування"
+    ],
+    check: ["Перевірити всі передачі, включно із задньою, на прогрітій коробці", "Перемикання без ударів і затримок", "Чи ремонтували коробку — з рахунками"]
+  },
+  "AISIN-AF40": {
+    name: "АКПП 6-ступ. Aisin AF40 (TF-80SC)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Автомат Aisin для дизелів Insignia A та Astra H/J. Міцний, але не любить «вічну» оливу.",
+    issues: ["Поштовхи при перемиканні через знос гідроблоку й соленоїдів", "Перегрів при буксируванні й агресивній їзді"],
+    check: ["Перемикання м'які, особливо 2→3 і 3→4", "Історія заміни оливи коробки"]
+  },
+  "GM-8T": {
+    name: "АКПП 8-ступ. (Insignia B)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "8-ступ. автомат Insignia B з потужними моторами. Статистики небагато.",
+    issues: ["Поштовхи на малій швидкості (лікується оновленням ПЗ)"],
+    check: ["Плавні перемикання 1→2→3", "Чи оновлювали ПЗ коробки"]
+  },
+  "GM-CVT": {
+    name: "Варіатор CVT (Astra K, 2019+)",
+    type: "auto",
+    kind: "Безступінчастий варіатор",
+    summary: "Варіатор Astra K після рестайлінгу з 1.4 Turbo. Статистики мало.",
+    issues: ["Гул і поштовхи на великих пробігах", "Без заміни оливи — знос ременя"],
+    check: ["Розгін плавний, без ривків і гулу"]
+  },
+  "GM-9T": {
+    name: "АКПП 9-ступ. (Astra K, 2019+)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "9-ступ. автомат Astra K після рестайлінгу з 1.5 Diesel. Статистики мало.",
+    issues: ["Поштовхи при перемиканні (оновлення ПЗ)"],
+    check: ["Плавні перемикання на малій швидкості"]
+  }
+});
+
+// ===== data/gearboxes/psa.js =====
+// Автоматичні коробки PSA / Stellantis (Peugeot, Citroën, нові Opel).
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.gearboxes, {
+  "PSA-AL4": {
+    name: "АКПП 4-ступ. AL4 / DP0",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Старий 4-ступ. автомат PSA/Renault. Один з найненадійніших автоматів: краще обходити або брати лише з підтвердженим ремонтом.",
+    issues: [
+      "Відмова клапана тиску й соленоїдів → аварійний режим (блимає «Sport»/«Snow»)",
+      "Удари при перемиканні, пробуксовка",
+      "Перегрів"
+    ],
+    check: ["Немає аварійного режиму й блимання індикаторів", "Перемикання без ударів на прогрітій коробці", "Рахунки за ремонт коробки"]
+  },
+  "PSA-ETG": {
+    name: "Робот ETG6 / BMP6",
+    type: "auto",
+    kind: "Роботизована механіка з одним зчепленням",
+    summary: "Робот PSA 2010–2015 рр. з одним зчепленням. Повільний, з «кивками» при перемиканні.",
+    issues: ["Відмова актуаторів", "Швидкий знос зчеплення", "Ривки при перемиканні"],
+    check: ["Плавне рушання без пробуксовки", "Передачі вмикаються одразу, без помилок"]
+  },
+  "PSA-EAT6": {
+    name: "АКПП 6-ступ. EAT6 (Aisin)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "6-ступ. автомат Aisin у Peugeot 308/3008 з 2013–2014 рр. Надійний.",
+    issues: ["Поштовхи при перемиканні з «вічною» оливою"],
+    check: ["Плавні перемикання без ударів", "Бажано підтвердження заміни оливи"]
+  },
+  "PSA-EAT8": {
+    name: "АКПП 8-ступ. EAT8 (Aisin)",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "8-ступ. автомат Aisin у Peugeot, Citroën, Opel з 2017 р. Загалом надійний.",
+    issues: ["Поштовхи на малій швидкості (оновлення ПЗ)", "Поодинокі відмови блока керування"],
+    check: ["Плавні перемикання 1→2→3", "Немає помилок коробки в діагностиці"]
+  },
+  "PSA-EEAT8": {
+    name: "АКПП 8-ступ. e-EAT8 (гібридна)",
+    type: "auto",
+    kind: "Автомат з вбудованим електромотором (PHEV)",
+    summary: "Коробка плагін-гібридів Stellantis. Складна; статистики мало.",
+    issues: ["Помилки гібридної системи", "Дорогий ремонт"],
+    check: ["Перевірка гібридної системи в дилера", "Немає помилок у діагностиці"]
+  }
+});
+
 // ===== data/gearboxes/toyota.js =====
 // Коробки Toyota: робот MMT, варіатор, гібридна e-CVT, автомат Aisin.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -1311,6 +1596,116 @@ window.CarCheck.makes["Mazda"] = {
         { engine: "skyactiv-g",       label: "2.0 e-Skyactiv G 150 к.с.",   years: [2022, null], manual: ["MT6"], auto: ["SKYACTIV-DRIVE"] },
         { engine: "skyactiv-x",       label: "2.0 Skyactiv-X 180–186 к.с.", years: [2019, null], manual: ["MT6"], auto: ["SKYACTIV-DRIVE"] },
         { engine: "skyactiv-d-small", label: "1.8 Skyactiv-D 116 к.с.",     years: [2019, 2021], manual: ["MT6"], auto: ["SKYACTIV-DRIVE"] }
+      ]
+    }
+  ]
+};
+
+// ===== data/makes/opel.js =====
+// Opel: моделі → покоління → варіанти (двигун + роки + коробки).
+// Дані попередні, зібрані з відкритих джерел. Потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Opel"] = {
+  "Astra": [
+    {
+      generation: "H", years: [2004, 2014],
+      variants: [
+        { engine: "opel-ecotec",    label: "1.4 Twinport 90 к.с.",       years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC"] },
+        { engine: "opel-ecotec",    label: "1.6 Twinport 105–115 к.с.",  years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC", "OPEL-AT4"] },
+        { engine: "opel-ecotec",    label: "1.8 125–140 к.с.",           years: [2004, 2014], manual: ["MT5"], auto: ["OPEL-AT4"] },
+        { engine: "opel-1.6-turbo", label: "2.0 Turbo / OPC 170–240 к.с.", years: [2004, 2010], manual: ["MT6"], auto: [],
+          note: "У базі описано як турбомотор GM; для OPC 2.0 Turbo (Z20LEH) ризики схожі: перегрів, витрата оливи, турбіна." },
+        { engine: "opel-1.3-cdti",  label: "1.3 CDTI 90 к.с.",           years: [2005, 2010], manual: ["MT6"], auto: [] },
+        { engine: "opel-1.7-cdti",  label: "1.7 CDTI 80–125 к.с.",       years: [2004, 2014], manual: ["MT5", "MT6"], auto: [] },
+        { engine: "opel-1.9-cdti",  label: "1.9 CDTI 100–150 к.с.",      years: [2004, 2010], manual: ["MT6"], auto: ["AISIN-AF40"] }
+      ]
+    },
+    {
+      generation: "J", years: [2009, 2015],
+      variants: [
+        { engine: "opel-ecotec",    label: "1.4 100 к.с.",               years: [2009, 2015], manual: ["MT5"], auto: [] },
+        { engine: "opel-ecotec",    label: "1.6 115 к.с.",               years: [2009, 2015], manual: ["MT5"], auto: ["GM-6T"] },
+        { engine: "opel-1.4-turbo", label: "1.4 Turbo 120–140 к.с.",     years: [2009, 2015], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.6-turbo", label: "1.6 Turbo 170–200 к.с.",     years: [2009, 2015], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.7-cdti",  label: "1.7 CDTI 110–130 к.с.",      years: [2009, 2015], manual: ["MT6"], auto: ["AISIN-AF40"] },
+        { engine: "opel-1.6-cdti",  label: "1.6 CDTI 110–136 к.с.",      years: [2014, 2015], manual: ["MT6"], auto: [] },
+        { engine: "opel-2.0-cdti",  label: "2.0 CDTI 160–195 к.с.",      years: [2009, 2015], manual: ["MT6"], auto: ["AISIN-AF40"] }
+      ]
+    },
+    {
+      generation: "K", years: [2015, 2021],
+      variants: [
+        { engine: "opel-sge-turbo", label: "1.0 Turbo 105 к.с.",         years: [2015, 2019], manual: ["MT5"], auto: ["OPEL-EASYTRONIC"] },
+        { engine: "opel-sge-turbo", label: "1.4 Turbo 125–150 к.с.",     years: [2015, 2019], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.6-turbo", label: "1.6 Turbo 200 к.с.",         years: [2016, 2019], manual: ["MT6"], auto: [] },
+        { engine: "opel-1.6-cdti",  label: "1.6 CDTI 95–160 к.с.",       years: [2015, 2019], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-sge-turbo", label: "1.2 Turbo 110–145 к.с.",     years: [2019, 2021], manual: ["MT6"], auto: [] },
+        { engine: "opel-sge-turbo", label: "1.4 Turbo 145 к.с. CVT",     years: [2019, 2021], manual: [], auto: ["GM-CVT"] },
+        { engine: "opel-1.5-diesel", label: "1.5 Diesel 105–122 к.с.",   years: [2019, 2021], manual: ["MT6"], auto: ["GM-9T"] }
+      ]
+    },
+    {
+      generation: "L", years: [2021, null],
+      variants: [
+        { engine: "psa-puretech", label: "1.2 Turbo (PureTech) 110–130 к.с.", years: [2021, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-dv5",      label: "1.5 Diesel (BlueHDi) 130 к.с.",     years: [2021, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-phev",     label: "1.6 Hybrid 180–225 к.с. (PHEV)",    years: [2021, null], manual: [], auto: ["PSA-EEAT8"] }
+      ]
+    }
+  ],
+
+  "Insignia": [
+    {
+      generation: "A", years: [2008, 2017],
+      variants: [
+        { engine: "opel-ecotec",    label: "1.6 / 1.8 115–140 к.с.",     years: [2008, 2014], manual: ["MT5", "MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.4-turbo", label: "1.4 Turbo 140 к.с.",         years: [2010, 2017], manual: ["MT6"], auto: [] },
+        { engine: "opel-1.6-turbo", label: "1.6 Turbo 170–180 к.с.",     years: [2008, 2017], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.6-turbo", label: "2.0 Turbo 220–250 к.с.",     years: [2008, 2017], manual: ["MT6"], auto: ["GM-6T"],
+          note: "У базі описано як турбомотор GM; для 2.0 Turbo (A20NHT) ризики схожі: перегрів, витрата оливи, турбіна." },
+        { engine: "opel-2.0-cdti",  label: "2.0 CDTI 110–195 к.с.",      years: [2008, 2017], manual: ["MT6"], auto: ["AISIN-AF40"] },
+        { engine: "opel-1.6-cdti",  label: "1.6 CDTI 120–136 к.с.",      years: [2015, 2017], manual: ["MT6"], auto: ["AISIN-AF40"] }
+      ]
+    },
+    {
+      generation: "B", years: [2017, 2022],
+      variants: [
+        { engine: "opel-sge-turbo", label: "1.5 Turbo 140–165 к.с.",     years: [2017, 2022], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-1.6-turbo", label: "2.0 Turbo 200–260 к.с. 4x4", years: [2017, 2022], manual: [], auto: ["GM-8T"] },
+        { engine: "opel-1.6-cdti",  label: "1.6 CDTI 110–136 к.с.",      years: [2017, 2020], manual: ["MT6"], auto: ["GM-6T"] },
+        { engine: "opel-2.0-cdti",  label: "2.0 CDTI 170–210 к.с.",      years: [2017, 2022], manual: ["MT6"], auto: ["GM-8T"] }
+      ]
+    }
+  ],
+
+  "Corsa": [
+    {
+      generation: "D", years: [2006, 2014],
+      variants: [
+        { engine: "opel-ecotec",   label: "1.0 60–65 к.с.",              years: [2006, 2014], manual: ["MT5"], auto: [] },
+        { engine: "opel-ecotec",   label: "1.2 80–85 к.с.",              years: [2006, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC"] },
+        { engine: "opel-ecotec",   label: "1.4 90–100 к.с.",             years: [2006, 2014], manual: ["MT5"], auto: ["OPEL-AT4"] },
+        { engine: "opel-1.3-cdti", label: "1.3 CDTI 75–95 к.с.",         years: [2006, 2014], manual: ["MT5"], auto: ["OPEL-EASYTRONIC"] },
+        { engine: "opel-1.7-cdti", label: "1.7 CDTI 125–130 к.с.",       years: [2006, 2014], manual: ["MT6"], auto: [] }
+      ]
+    },
+    {
+      generation: "E", years: [2014, 2019],
+      variants: [
+        { engine: "opel-ecotec",    label: "1.2 70 к.с.",                years: [2014, 2019], manual: ["MT5"], auto: [] },
+        { engine: "opel-ecotec",    label: "1.4 75–100 к.с.",            years: [2014, 2019], manual: ["MT5"], auto: ["OPEL-EASYTRONIC", "OPEL-AT4"] },
+        { engine: "opel-sge-turbo", label: "1.0 Turbo 90–115 к.с.",      years: [2014, 2019], manual: ["MT5", "MT6"], auto: ["OPEL-EASYTRONIC"] },
+        { engine: "opel-1.3-cdti",  label: "1.3 CDTI 75–95 к.с.",        years: [2014, 2019], manual: ["MT5"], auto: [] }
+      ]
+    },
+    {
+      generation: "F", years: [2019, null],
+      variants: [
+        { engine: "psa-puretech", label: "1.2 75 к.с. (атмосферний)",    years: [2019, null], manual: ["MT5"], auto: [],
+          note: "Атмосферна версія PureTech має ланцюг ГРМ — значно надійніша за турбоверсії." },
+        { engine: "psa-puretech", label: "1.2 Turbo 100–130 к.с.",       years: [2019, null], manual: ["MT6"], auto: ["PSA-EAT8"] },
+        { engine: "psa-dv5",      label: "1.5 Diesel 100 к.с.",          years: [2019, 2022], manual: ["MT6"], auto: [] }
       ]
     }
   ]
