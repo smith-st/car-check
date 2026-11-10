@@ -93,54 +93,14 @@
   });
   gearbox.addEventListener("change", updateBtn);
 
-  // ---------- Звіт ----------
-  const list = (items, cls) => items && items.length
-    ? `<ul${cls ? ` class="${cls}"` : ""}>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
-
-  function gearboxBlock(code) {
-    const g = DB.gearboxes[code];
-    if (!g) return `<div class="gb"><h4>${esc(code)}</h4></div>`;
-    return `<div class="gb">
-      <h4>${esc(g.name)}</h4>
-      <div class="meta">${esc(g.kind)}</div>
-      <p>${esc(g.summary)}</p>
-      <div class="sub">Типові проблеми</div>${list(g.issues)}
-      <div class="sub">Що перевірити на огляді</div>${list(g.check, "chk")}
-    </div>`;
-  }
-
-  function renderReport() {
+  // ---------- Перехід на сторінку авто ----------
+  goManual.addEventListener("click", () => {
     const { gen, v } = currentVariant();
-    const e = DB.engines[v.engine] || { name: v.label, issues: [] };
-    const codes = v[gearbox.value];
-    const multi = codes.length > 1;
-
-    $("result-title").textContent = `${make.value} ${model.value} ${gen.generation}, ${year.value}`;
-    $("result-text").textContent = `${v.label} · ${gearbox.value === "auto" ? "автомат" : "механіка"}`;
-
-    $("report").innerHTML = `
-      ${multi ? `<div class="note"><b>Можлива одна з ${codes.length} коробок.</b>
-        ${v.note ? esc(v.note) + " " : ""}Точно дізнатися можна за кодом коробки на шильдику агрегату,
-        за PR-кодами на наклейці в багажнику (під підлогою, біля запаски) або в сервісній книжці.</div>`
-        : v.note ? `<div class="note">${esc(v.note)}</div>` : ""}
-      <div class="rcard">
-        <div class="lbl">Двигун</div>
-        <h4>${esc(e.name)}</h4>
-        <div class="meta">${esc([e.family, e.fuel, e.timing && "ГРМ: " + e.timing].filter(Boolean).join(" · "))}</div>
-        <p>${esc(e.summary || "")}</p>
-        <div class="sub">Типові проблеми</div>${list(e.issues)}
-      </div>
-      <div class="rcard">
-        <div class="lbl">Коробка передач</div>
-        ${codes.map(gearboxBlock).join("")}
-      </div>
-      <p class="disclaimer">Дані попередні й зібрані з відкритих джерел. Перед покупкою перевіряйте конкретне авто в сервісі.</p>`;
-
-    const r = $("result");
-    r.classList.remove("show"); void r.offsetWidth; r.classList.add("show");
-    r.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-  goManual.addEventListener("click", renderReport);
+    location.href = "car.html?" + new URLSearchParams({
+      make: make.value, model: model.value, gen: gen.generation,
+      engine: v.label, year: year.value, gb: gearbox.value
+    }).toString();
+  });
 
   function showSimple(title, text) {
     $("result-title").textContent = title;

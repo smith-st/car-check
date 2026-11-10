@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Звіт по авто — CarCheck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo" aria-label="CarCheck — на головну">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg>
+      </div>
+      Car<span>Check</span>
+    </a>
+    <nav>
+      <a href="index.html#check">Перевірити інше авто</a>
+    </nav>
+  </header>
+
+  <main id="app"></main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 CarCheck</span>
+      <span>Дані попередні, потребують звірки</span>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="data/engines.js"></script>
+  <script src="data/gearboxes.js"></script>
+  <script src="data/makes/skoda.js"></script>
+  <script src="scripts/car.js"></script>
+</body>
+</html>
