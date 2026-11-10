@@ -42,6 +42,8 @@ window.CarCheck.makes["Škoda"] = {
         { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",       years: [2018, 2020], manual: ["MT6"], auto: ["DQ200"] },
         { engine: "1.8-tsi",       label: "1.8 TSI 180 к.с.",       years: [2013, 2020], manual: ["MT6"], auto: ["DQ250"] },
         { engine: "2.0-tsi",       label: "RS 2.0 TSI 220–245 к.с.", years: [2013, 2020], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190 к.с.",       years: [2018, 2020], manual: [], auto: ["DQ381"],
+          note: "Прийшов на заміну 1.8 TSI 180; лише з DSG-7, часто з повним приводом 4x4 (Scout)." },
         { engine: "1.6-tdi-cr",    label: "1.6 TDI 90–115 к.с.",    years: [2013, 2020], manual: ["MT5"], auto: ["DQ200"] },
         { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",       years: [2013, 2020], manual: ["MT6"], auto: ["DQ250", "DQ381"],
           note: "Здебільшого DQ250; на частині авто останніх років випуску може стояти DQ381." },
