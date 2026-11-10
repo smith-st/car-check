@@ -101,5 +101,62 @@ window.CarCheck.makes["Škoda"] = {
         { engine: "1.5-tsi", label: "1.5 TSI 150 к.с.",     years: [2021, null], manual: [], auto: ["DQ200"] }
       ]
     }
+  ],
+
+  "Superb": [
+    {
+      generation: "II (3T)", years: [2008, 2015],
+      variants: [
+        { engine: "1.4-tsi-ea111", label: "1.4 TSI 125 к.с.",          years: [2008, 2015], manual: ["MT6"], auto: [] },
+        { engine: "1.8-tsi",       label: "1.8 TSI 160 к.с.",          years: [2008, 2015], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 200 к.с.",          years: [2008, 2015], manual: [], auto: ["DQ250"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 105 к.с.",          years: [2010, 2015], manual: ["MT5"], auto: [] },
+        { engine: "2.0-tdi-pd",    label: "2.0 TDI PD 140–170 к.с.",   years: [2008, 2010], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tdi-cr",    label: "2.0 TDI CR 140–170 к.с.",   years: [2010, 2015], manual: ["MT6"], auto: ["DQ250"] }
+      ]
+    },
+    {
+      generation: "III (3V)", years: [2015, 2023],
+      variants: [
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 125–150 к.с.",      years: [2015, 2019], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2018, 2023], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190–280 к.с.",      years: [2015, 2023], manual: [], auto: ["DQ381", "DQ500"],
+          note: "З переднім приводом — переважно DQ381, з повним 4x4 — DQ500." },
+        { engine: "1.4-tsi-phev",  label: "iV 1.4 TSI 218 к.с. (PHEV)", years: [2020, 2023], manual: [], auto: ["DQ400E"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 120 к.с.",          years: [2015, 2019], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",          years: [2015, 2023], manual: ["MT6"], auto: ["DQ250", "DQ381"],
+          note: "До ~2018 р. переважно DQ250, пізніше — DQ381." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–200 к.с.",      years: [2015, 2023], manual: [], auto: ["DQ381", "DQ500"],
+          note: "З повним приводом 4x4 — DQ500." }
+      ]
+    }
+  ],
+
+  "Kodiaq": [
+    {
+      generation: "I (NS7)", years: [2016, 2024],
+      variants: [
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 125–150 к.с.",      years: [2016, 2019], manual: ["MT6"], auto: ["DQ250", "DQ500"],
+          note: "150 к.с. з переднім приводом — DSG-6 DQ250, з 4x4 — DQ500." },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2019, 2024], manual: ["MT6"], auto: ["DQ381"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 180–245 к.с. 4x4",  years: [2016, 2024], manual: [], auto: ["DQ500"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",          years: [2016, 2024], manual: ["MT6"], auto: ["DQ381", "DQ500"],
+          note: "З переднім приводом — DQ381, з 4x4 — DQ500." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–200 к.с. 4x4",  years: [2016, 2024], manual: [], auto: ["DQ500"] }
+      ]
+    }
+  ],
+
+  "Karoq": [
+    {
+      generation: "I (NU7)", years: [2017, null],
+      variants: [
+        { engine: "1.0-tsi",       label: "1.0 TSI 110–116 к.с.",      years: [2017, 2023], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2017, null], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190 к.с. 4x4",      years: [2018, null], manual: [], auto: ["DQ381"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 115 к.с.",          years: [2017, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 116–150 к.с.",      years: [2017, null], manual: ["MT6"], auto: ["DQ381"] }
+      ]
+    }
   ]
 };

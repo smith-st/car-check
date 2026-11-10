@@ -126,5 +126,47 @@ window.CarCheck.makes["Volkswagen"] = {
         { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–240 к.с. 4Motion", years: [2016, 2024], manual: [], auto: ["DQ500"] }
       ]
     }
+  ],
+
+  "Polo": [
+    {
+      generation: "V (6R)", years: [2009, 2017],
+      variants: [
+        { engine: "1.2-mpi-3cyl",  label: "1.2 MPI 60–70 к.с.",       years: [2009, 2014], manual: ["MT5"], auto: [] },
+        { engine: "1.0-mpi",       label: "1.0 MPI 60–75 к.с.",       years: [2014, 2017], manual: ["MT5"], auto: [] },
+        { engine: "1.4-mpi",       label: "1.4 MPI 85 к.с.",          years: [2009, 2014], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.2-tsi-ea111", label: "1.2 TSI 90–105 к.с.",      years: [2009, 2014], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 95–110 к.с.",      years: [2014, 2017], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.2-tdi",       label: "1.2 TDI 75 к.с.",          years: [2009, 2014], manual: ["MT5"], auto: [] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 75–105 к.с.",      years: [2009, 2014], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.4-tdi",       label: "1.4 TDI 75–105 к.с.",      years: [2014, 2017], manual: ["MT5"], auto: ["DQ200"] }
+      ]
+    },
+    {
+      generation: "VI (AW)", years: [2017, null],
+      variants: [
+        { engine: "1.0-mpi",       label: "1.0 MPI 65–80 к.с.",       years: [2017, null], manual: ["MT5"], auto: [] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 95–115 к.с.",      years: [2017, null], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",         years: [2018, 2021], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "GTI 2.0 TSI 200–207 к.с.", years: [2018, null], manual: [], auto: ["DQ250", "DQ381"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 80–95 к.с.",       years: [2017, 2021], manual: ["MT5"], auto: ["DQ200"] }
+      ]
+    }
+  ],
+
+  "Touran": [
+    {
+      generation: "II (5T)", years: [2015, 2025],
+      variants: [
+        { engine: "1.2-tsi-ea211", label: "1.2 TSI 110 к.с.",         years: [2015, 2018], manual: ["MT6"], auto: [] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 115 к.с.",         years: [2018, 2021], manual: ["MT6"], auto: [] },
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 150 к.с.",         years: [2015, 2018], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",         years: [2018, 2025], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 110–115 к.с.",     years: [2015, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",         years: [2015, 2025], manual: ["MT6"], auto: ["DQ250", "DQ381"],
+          note: "До ~2018 р. переважно DQ250, пізніше — DQ381." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190 к.с.",         years: [2015, 2019], manual: [], auto: ["DQ250"] }
+      ]
+    }
   ]
 };

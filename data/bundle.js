@@ -594,6 +594,46 @@ Object.assign(window.CarCheck.engines, {
   }
 });
 
+// ---------- Додатково: Polo, Audi ----------
+Object.assign(window.CarCheck.engines, {
+  "1.2-mpi-3cyl": {
+    name: "1.0 / 1.2 MPI (3 цил., EA111)",
+    family: "EA111",
+    fuel: "Бензин",
+    timing: "ланцюг",
+    summary: "Слабкий 3-циліндровий атмосферний мотор Polo, Fabia II та Ibiza. Простий, але з відомими болячками.",
+    issues: [
+      "Розтягнення ланцюга ГРМ (брязкіт на холодну)",
+      "Прогар клапанів і падіння компресії на великих пробігах",
+      "Вібрації на холостих"
+    ]
+  },
+  "1.2-tdi": {
+    name: "1.2 TDI CR (3 цил.)",
+    family: "EA189",
+    fuel: "Дизель (Common Rail)",
+    timing: "ремінь",
+    summary: "Маленький 3-циліндровий дизель Polo V і Fabia II. Дуже економний, але шумний і чутливий до міського режиму.",
+    issues: [
+      "Забивання DPF при коротких поїздках",
+      "Вібрації й двомасовий маховик",
+      "Підпадав під «дизельгейт» — чи оновлено ПЗ"
+    ]
+  },
+  "3.0-tdi": {
+    name: "3.0 TDI V6",
+    family: "EA896 / EA897",
+    fuel: "Дизель (Common Rail)",
+    timing: "ланцюги (ззаду двигуна)",
+    summary: "Потужний V6-дизель Audi A4/A6/Q5/Q7 і VW Touareg. Динамічний і витривалий, але ремонт дуже дорогий.",
+    issues: [
+      "Знос ланцюгів і натягувачів ГРМ (розташовані ззаду — заміна з підняттям двигуна), особливо 2007–2012 рр.",
+      "Течі оливного радіатора, заслінки впускного колектора",
+      "Клапан і радіатор EGR, DPF, п'єзофорсунки"
+    ]
+  }
+});
+
 // ===== data/gearboxes/ford.js =====
 // Автоматичні коробки Ford: PowerShift, гідромеханічні автомати.
 // Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
@@ -928,6 +968,191 @@ Object.assign(window.CarCheck.gearboxes, {
   }
 });
 
+// ---------- Audi (поздовжні коробки) ----------
+Object.assign(window.CarCheck.gearboxes, {
+  "DL501": {
+    name: "S tronic 7 DL501 (0B5)",
+    type: "auto",
+    kind: "Робот, 7 ступ., «мокре» зчеплення, для поздовжніх моторів",
+    summary: "Робот Audi A4/A5/A6/Q5 2008–2016 рр. з потужними моторами й quattro. Швидкий, але ремонт мехатроніка дорогий.",
+    issues: [
+      "Відмова мехатроніка й датчиків швидкості",
+      "Знос пакетів зчеплення; ривки при рушанні",
+      "Без заміни оливи (~60 тис. км) — швидкий знос"
+    ],
+    check: [
+      "Рушання й перемикання без ривків, особливо на холодну",
+      "Історія заміни оливи коробки",
+      "Немає помилок коробки в діагностиці"
+    ]
+  },
+  "DL382": {
+    name: "S tronic 7 DL382 (0CK)",
+    type: "auto",
+    kind: "Робот, 7 ступ., «мокре» зчеплення, для поздовжніх моторів",
+    summary: "Новіший робот Audi з 2015–2016 рр. (A4 B9, A5, A6 C8, Q5 II). Загалом надійніший за DL501.",
+    issues: [
+      "Ранні коробки (2016–2018): збої насоса й мехатроніка",
+      "Чутливість до заміни оливи"
+    ],
+    check: [
+      "Плавне рушання без поштовхів",
+      "Чи виконані сервісні акції Audi щодо коробки"
+    ]
+  },
+  "MULTITRONIC": {
+    name: "Варіатор Multitronic (0AW)",
+    type: "auto",
+    kind: "Безступінчастий варіатор з ланцюгом",
+    summary: "Варіатор Audi A4/A5/A6 з переднім приводом (до ~2015 р.). Має погану репутацію; ремонт дорогий.",
+    issues: [
+      "Ривки й вібрації при рушанні та на малій швидкості",
+      "Відмова блока керування, знос пакетів зчеплення й ланцюга",
+      "Аварійний режим (блимає індикатор коробки)"
+    ],
+    check: [
+      "Плавне рушання без ривків і гулу",
+      "Чи ремонтували коробку — з рахунками",
+      "Немає помилок коробки в діагностиці"
+    ]
+  }
+});
+
+// ===== data/gearboxes/zf.js =====
+// Автомати ZF: стоять у BMW, Audi, Jaguar, Land Rover та інших.
+// Ключ — ідентифікатор, на який посилаються файли data/makes/*.js.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+Object.assign(window.CarCheck.gearboxes, {
+  "ZF-6HP": {
+    name: "АКПП 6-ступ. ZF 6HP",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Автомат ZF у BMW E90/E60, Audi A6 C6 тощо. Надійний, але олива «на весь термін» без заміни вбиває його.",
+    issues: [
+      "Поштовхи при перемиканні через знос мехатроніка й втулок",
+      "Течі піддона й роз'єму мехатроніка",
+      "Знос гідротрансформатора на великих пробігах"
+    ],
+    check: [
+      "Перемикання м'які, без ударів, особливо 2→3 і при скиданні газу",
+      "Історія заміни оливи коробки (бажано кожні 60–80 тис. км)"
+    ]
+  },
+  "ZF-8HP": {
+    name: "АКПП 8-ступ. ZF 8HP",
+    type: "auto",
+    kind: "Класичний гідромеханічний автомат",
+    summary: "Один з найкращих сучасних автоматів (BMW F/G, Audi A6/A8/Q7, Jaguar). Швидкий і дуже витривалий.",
+    issues: [
+      "Без заміни оливи (~80–100 тис. км) — поштовхи й знос мехатроніка",
+      "Течі піддона (пластиковий піддон з фільтром)"
+    ],
+    check: [
+      "Плавні перемикання на всіх передачах",
+      "Немає течей оливи з коробки"
+    ]
+  }
+});
+
+// ===== data/makes/audi.js =====
+// Audi: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни спільні з групою VAG; коробки: DSG (поперечні мотори), S tronic DL501/DL382, Multitronic, ZF (поздовжні).
+// Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Audi"] = {
+  "A3": [
+    {
+      generation: "II (8P)", years: [2003, 2012],
+      variants: [
+        { engine: "1.6-mpi",       label: "1.6 MPI 102 к.с.",          years: [2003, 2010], manual: ["MT5"], auto: ["09G"] },
+        { engine: "1.6-fsi",       label: "1.6 FSI 115 к.с.",          years: [2003, 2007], manual: ["MT6"], auto: ["09G"] },
+        { engine: "1.2-tsi-ea111", label: "1.2 TFSI 105 к.с.",         years: [2010, 2012], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.4-tsi-ea111", label: "1.4 TFSI 125 к.с.",         years: [2007, 2012], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.8-tsi",       label: "1.8 TFSI 160 к.с.",         years: [2006, 2012], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tsi",       label: "2.0 TFSI 200 к.с.",         years: [2004, 2012], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "1.9-tdi",       label: "1.9 TDI 105 к.с.",          years: [2003, 2010], manual: ["MT5"], auto: ["DQ250"] },
+        { engine: "2.0-tdi-pd",    label: "2.0 TDI PD 140–170 к.с.",   years: [2003, 2008], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 90–105 к.с.",       years: [2009, 2012], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-cr",    label: "2.0 TDI CR 140–170 к.с.",   years: [2008, 2012], manual: ["MT6"], auto: ["DQ250"] }
+      ]
+    },
+    {
+      generation: "III (8V)", years: [2012, 2020],
+      variants: [
+        { engine: "1.0-tsi",       label: "1.0 TFSI 115 к.с.",         years: [2016, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.2-tsi-ea211", label: "1.2 TFSI 105–110 к.с.",     years: [2012, 2016], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.4-tsi-ea211", label: "1.4 TFSI 122–150 к.с.",     years: [2012, 2018], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TFSI 150 к.с.",         years: [2017, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.8-tsi",       label: "1.8 TFSI 180 к.с.",         years: [2012, 2016], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tsi",       label: "2.0 TFSI 190–310 к.с.",     years: [2013, 2020], manual: ["MT6"], auto: ["DQ250", "DQ381"],
+          note: "Здебільшого DQ250; S3 і новіші версії — також DQ381." },
+        { engine: "1.4-tsi-phev",  label: "e-tron 1.4 TFSI 204 к.с. (PHEV)", years: [2014, 2020], manual: [], auto: ["DQ400E"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 105–116 к.с.",      years: [2012, 2020], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150–184 к.с.",      years: [2012, 2020], manual: ["MT6"], auto: ["DQ250"] }
+      ]
+    },
+    {
+      generation: "IV (8Y)", years: [2020, null],
+      variants: [
+        { engine: "1.0-tsi",       label: "30 TFSI 1.0 110 к.с.",      years: [2020, 2024], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "35 TFSI 1.5 150 к.с.",      years: [2020, null], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "40 TFSI / S3 2.0 190–333 к.с.", years: [2020, null], manual: [], auto: ["DQ381"] },
+        { engine: "1.4-tsi-phev",  label: "40/45 TFSI e 1.4 204–245 к.с. (PHEV)", years: [2020, null], manual: [], auto: ["DQ400E"] },
+        { engine: "2.0-tdi-ea288", label: "30/35 TDI 2.0 116–150 к.с.", years: [2020, null], manual: ["MT6"], auto: ["DQ381"] }
+      ]
+    }
+  ],
+
+  "A4": [
+    {
+      generation: "B8 (8K)", years: [2007, 2015],
+      variants: [
+        { engine: "1.8-tsi",       label: "1.8 TFSI 120–170 к.с.",     years: [2007, 2015], manual: ["MT6"], auto: ["MULTITRONIC"] },
+        { engine: "2.0-tsi",       label: "2.0 TFSI 180–225 к.с.",     years: [2008, 2015], manual: ["MT6"], auto: ["MULTITRONIC", "DL501"],
+          note: "Передній привід — варіатор Multitronic, quattro — S tronic DL501." },
+        { engine: "2.0-tdi-cr",    label: "2.0 TDI 120–190 к.с.",      years: [2008, 2015], manual: ["MT6"], auto: ["MULTITRONIC", "DL501"],
+          note: "Передній привід — варіатор Multitronic, quattro — S tronic DL501." },
+        { engine: "3.0-tdi",       label: "3.0 TDI V6 204–245 к.с.",   years: [2007, 2015], manual: ["MT6"], auto: ["MULTITRONIC", "DL501"],
+          note: "Передній привід — Multitronic, quattro — S tronic DL501." }
+      ]
+    },
+    {
+      generation: "B9 (8W)", years: [2015, null],
+      variants: [
+        { engine: "1.4-tsi-ea211", label: "1.4 TFSI 150 к.с.",         years: [2015, 2019], manual: ["MT6"], auto: ["DL382"] },
+        { engine: "2.0-tsi",       label: "2.0 TFSI 150–265 к.с.",     years: [2015, null], manual: ["MT6"], auto: ["DL382"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 122–204 к.с.",      years: [2015, null], manual: ["MT6"], auto: ["DL382"] },
+        { engine: "3.0-tdi",       label: "3.0 TDI V6 218–347 к.с.",   years: [2015, null], manual: [], auto: ["DL382", "ZF-8HP"],
+          note: "218–272 к.с. — S tronic, потужніші (S4 TDI, 50 TDI) — 8-ступ. автомат ZF." }
+      ]
+    }
+  ],
+
+  "A6": [
+    {
+      generation: "C7 (4G)", years: [2011, 2018],
+      variants: [
+        { engine: "2.0-tsi",       label: "2.0 TFSI 180–252 к.с.",     years: [2011, 2018], manual: ["MT6"], auto: ["MULTITRONIC", "DL501"],
+          note: "Передній привід — Multitronic (до ~2015), далі й quattro — S tronic DL501." },
+        { engine: "2.0-tdi-cr",    label: "2.0 TDI 136–190 к.с.",      years: [2011, 2018], manual: ["MT6"], auto: ["MULTITRONIC", "DL501"],
+          note: "До ~2014 р. з переднім приводом — Multitronic, далі — S tronic DL501." },
+        { engine: "3.0-tdi",       label: "3.0 TDI V6 204–326 к.с.",   years: [2011, 2018], manual: [], auto: ["MULTITRONIC", "DL501", "ZF-8HP"],
+          note: "204 к.с. з переднім приводом — Multitronic; 245–272 quattro — S tronic DL501; BiTDI 313–326 — 8-ступ. ZF." }
+      ]
+    },
+    {
+      generation: "C8 (4K)", years: [2018, null],
+      variants: [
+        { engine: "2.0-tsi",       label: "45 TFSI 2.0 245–265 к.с.",  years: [2018, null], manual: [], auto: ["DL382"] },
+        { engine: "2.0-tdi-ea288", label: "40 TDI 2.0 204 к.с.",       years: [2018, null], manual: [], auto: ["DL382"] },
+        { engine: "3.0-tdi",       label: "45/50 TDI 3.0 V6 231–286 к.с.", years: [2018, null], manual: [], auto: ["ZF-8HP"] }
+      ]
+    }
+  ]
+};
+
 // ===== data/makes/ford.js =====
 // Ford: моделі → покоління → варіанти (двигун + роки + коробки).
 // Дані попередні, зібрані з відкритих джерел. Потребують звірки.
@@ -1091,6 +1316,41 @@ window.CarCheck.makes["Mazda"] = {
   ]
 };
 
+// ===== data/makes/seat.js =====
+// Seat: моделі → покоління → варіанти (двигун + роки + коробки).
+// Двигуни й коробки спільні з Škoda та Volkswagen (група VAG). Дані попередні, потребують звірки.
+window.CarCheck = window.CarCheck || { makes: {}, engines: {}, gearboxes: {} };
+
+window.CarCheck.makes["Seat"] = {
+  "Leon": [
+    {
+      generation: "III (5F)", years: [2012, 2020],
+      variants: [
+        { engine: "1.2-tsi-ea211", label: "1.2 TSI 86–110 к.с.",       years: [2012, 2016], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 110–115 к.с.",      years: [2015, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 122–150 к.с.",      years: [2012, 2018], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 130–150 к.с.",      years: [2018, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.8-tsi",       label: "1.8 TSI 180 к.с.",          years: [2012, 2018], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tsi",       label: "Cupra 2.0 TSI 265–300 к.с.", years: [2014, 2020], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 90–115 к.с.",       years: [2012, 2020], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150–184 к.с.",      years: [2012, 2020], manual: ["MT6"], auto: ["DQ250"] }
+      ]
+    },
+    {
+      generation: "IV (KL)", years: [2020, null],
+      variants: [
+        { engine: "1.0-tsi",       label: "1.0 TSI / eTSI 110 к.с.",   years: [2020, null], manual: ["MT6"], auto: ["DQ200"],
+          note: "Автомат — лише у версії eTSI (мілд-гібрид)." },
+        { engine: "1.5-tsi",       label: "1.5 TSI / eTSI 130–150 к.с.", years: [2020, null], manual: ["MT6"], auto: ["DQ200"],
+          note: "Автомат — у версії eTSI (мілд-гібрид)." },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190 к.с.",          years: [2020, 2024], manual: [], auto: ["DQ381"] },
+        { engine: "1.4-tsi-phev",  label: "e-Hybrid 1.4 TSI 204 к.с. (PHEV)", years: [2020, null], manual: [], auto: ["DQ400E"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 115–150 к.с.",      years: [2020, null], manual: ["MT6"], auto: ["DQ381"] }
+      ]
+    }
+  ]
+};
+
 // ===== data/makes/skoda.js =====
 // Škoda: моделі → покоління → варіанти (двигун + роки + коробки).
 //
@@ -1193,6 +1453,63 @@ window.CarCheck.makes["Škoda"] = {
         { engine: "1.0-tsi", label: "1.0 TSI 95 к.с.",      years: [2021, null], manual: ["MT5"], auto: [] },
         { engine: "1.0-tsi", label: "1.0 TSI 110–116 к.с.", years: [2021, null], manual: ["MT6"], auto: ["DQ200"] },
         { engine: "1.5-tsi", label: "1.5 TSI 150 к.с.",     years: [2021, null], manual: [], auto: ["DQ200"] }
+      ]
+    }
+  ],
+
+  "Superb": [
+    {
+      generation: "II (3T)", years: [2008, 2015],
+      variants: [
+        { engine: "1.4-tsi-ea111", label: "1.4 TSI 125 к.с.",          years: [2008, 2015], manual: ["MT6"], auto: [] },
+        { engine: "1.8-tsi",       label: "1.8 TSI 160 к.с.",          years: [2008, 2015], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 200 к.с.",          years: [2008, 2015], manual: [], auto: ["DQ250"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 105 к.с.",          years: [2010, 2015], manual: ["MT5"], auto: [] },
+        { engine: "2.0-tdi-pd",    label: "2.0 TDI PD 140–170 к.с.",   years: [2008, 2010], manual: ["MT6"], auto: ["DQ250"] },
+        { engine: "2.0-tdi-cr",    label: "2.0 TDI CR 140–170 к.с.",   years: [2010, 2015], manual: ["MT6"], auto: ["DQ250"] }
+      ]
+    },
+    {
+      generation: "III (3V)", years: [2015, 2023],
+      variants: [
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 125–150 к.с.",      years: [2015, 2019], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2018, 2023], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190–280 к.с.",      years: [2015, 2023], manual: [], auto: ["DQ381", "DQ500"],
+          note: "З переднім приводом — переважно DQ381, з повним 4x4 — DQ500." },
+        { engine: "1.4-tsi-phev",  label: "iV 1.4 TSI 218 к.с. (PHEV)", years: [2020, 2023], manual: [], auto: ["DQ400E"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 120 к.с.",          years: [2015, 2019], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",          years: [2015, 2023], manual: ["MT6"], auto: ["DQ250", "DQ381"],
+          note: "До ~2018 р. переважно DQ250, пізніше — DQ381." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–200 к.с.",      years: [2015, 2023], manual: [], auto: ["DQ381", "DQ500"],
+          note: "З повним приводом 4x4 — DQ500." }
+      ]
+    }
+  ],
+
+  "Kodiaq": [
+    {
+      generation: "I (NS7)", years: [2016, 2024],
+      variants: [
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 125–150 к.с.",      years: [2016, 2019], manual: ["MT6"], auto: ["DQ250", "DQ500"],
+          note: "150 к.с. з переднім приводом — DSG-6 DQ250, з 4x4 — DQ500." },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2019, 2024], manual: ["MT6"], auto: ["DQ381"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 180–245 к.с. 4x4",  years: [2016, 2024], manual: [], auto: ["DQ500"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",          years: [2016, 2024], manual: ["MT6"], auto: ["DQ381", "DQ500"],
+          note: "З переднім приводом — DQ381, з 4x4 — DQ500." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–200 к.с. 4x4",  years: [2016, 2024], manual: [], auto: ["DQ500"] }
+      ]
+    }
+  ],
+
+  "Karoq": [
+    {
+      generation: "I (NU7)", years: [2017, null],
+      variants: [
+        { engine: "1.0-tsi",       label: "1.0 TSI 110–116 к.с.",      years: [2017, 2023], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",          years: [2017, null], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "2.0 TSI 190 к.с. 4x4",      years: [2018, null], manual: [], auto: ["DQ381"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 115 к.с.",          years: [2017, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 116–150 к.с.",      years: [2017, null], manual: ["MT6"], auto: ["DQ381"] }
       ]
     }
   ]
@@ -1449,6 +1766,48 @@ window.CarCheck.makes["Volkswagen"] = {
         { engine: "2.0-tdi-ea288", label: "2.0 TDI 115–150 к.с.",     years: [2016, 2024], manual: ["MT6"], auto: ["DQ381", "DQ500"],
           note: "З переднім приводом — DQ381, з повним 4Motion — DQ500." },
         { engine: "2.0-tdi-ea288", label: "2.0 TDI 190–240 к.с. 4Motion", years: [2016, 2024], manual: [], auto: ["DQ500"] }
+      ]
+    }
+  ],
+
+  "Polo": [
+    {
+      generation: "V (6R)", years: [2009, 2017],
+      variants: [
+        { engine: "1.2-mpi-3cyl",  label: "1.2 MPI 60–70 к.с.",       years: [2009, 2014], manual: ["MT5"], auto: [] },
+        { engine: "1.0-mpi",       label: "1.0 MPI 60–75 к.с.",       years: [2014, 2017], manual: ["MT5"], auto: [] },
+        { engine: "1.4-mpi",       label: "1.4 MPI 85 к.с.",          years: [2009, 2014], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.2-tsi-ea111", label: "1.2 TSI 90–105 к.с.",      years: [2009, 2014], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 95–110 к.с.",      years: [2014, 2017], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.2-tdi",       label: "1.2 TDI 75 к.с.",          years: [2009, 2014], manual: ["MT5"], auto: [] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 75–105 к.с.",      years: [2009, 2014], manual: ["MT5"], auto: ["DQ200"] },
+        { engine: "1.4-tdi",       label: "1.4 TDI 75–105 к.с.",      years: [2014, 2017], manual: ["MT5"], auto: ["DQ200"] }
+      ]
+    },
+    {
+      generation: "VI (AW)", years: [2017, null],
+      variants: [
+        { engine: "1.0-mpi",       label: "1.0 MPI 65–80 к.с.",       years: [2017, null], manual: ["MT5"], auto: [] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 95–115 к.с.",      years: [2017, null], manual: ["MT5", "MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",         years: [2018, 2021], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tsi",       label: "GTI 2.0 TSI 200–207 к.с.", years: [2018, null], manual: [], auto: ["DQ250", "DQ381"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 80–95 к.с.",       years: [2017, 2021], manual: ["MT5"], auto: ["DQ200"] }
+      ]
+    }
+  ],
+
+  "Touran": [
+    {
+      generation: "II (5T)", years: [2015, 2025],
+      variants: [
+        { engine: "1.2-tsi-ea211", label: "1.2 TSI 110 к.с.",         years: [2015, 2018], manual: ["MT6"], auto: [] },
+        { engine: "1.0-tsi",       label: "1.0 TSI 115 к.с.",         years: [2018, 2021], manual: ["MT6"], auto: [] },
+        { engine: "1.4-tsi-ea211", label: "1.4 TSI 150 к.с.",         years: [2015, 2018], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.5-tsi",       label: "1.5 TSI 150 к.с.",         years: [2018, 2025], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "1.6-tdi-cr",    label: "1.6 TDI 110–115 к.с.",     years: [2015, 2020], manual: ["MT6"], auto: ["DQ200"] },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 150 к.с.",         years: [2015, 2025], manual: ["MT6"], auto: ["DQ250", "DQ381"],
+          note: "До ~2018 р. переважно DQ250, пізніше — DQ381." },
+        { engine: "2.0-tdi-ea288", label: "2.0 TDI 190 к.с.",         years: [2015, 2019], manual: [], auto: ["DQ250"] }
       ]
     }
   ]
