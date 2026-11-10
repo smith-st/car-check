@@ -9,11 +9,17 @@
     "directory": ".",
     "binding": "ASSETS"
   },
-  // Обмеження кількості аналізів (див. worker/limiter.js)
+  // Обмеження кількості аналізів (worker/limiter.js) і кеш результатів (worker/cache.js)
   "durable_objects": {
-    "bindings": [{ "name": "LIMITER", "class_name": "RateLimiter" }]
+    "bindings": [
+      { "name": "LIMITER", "class_name": "RateLimiter" },
+      { "name": "ANALYSIS_CACHE", "class_name": "AnalysisCache" }
+    ]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RateLimiter"] }],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RateLimiter"] },
+    { "tag": "v2", "new_sqlite_classes": ["AnalysisCache"] }
+  ],
   // Не стирати змінні, додані в панелі Cloudflare (наприклад, CLAUDE_MODEL), при кожному деплої
   "keep_vars": true,
   "observability": { "enabled": true }

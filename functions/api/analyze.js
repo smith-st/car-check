@@ -15,6 +15,7 @@
 import { checkListingUrl } from "../../scripts/listing-url.js";
 import { checkRateLimit } from "../../worker/limiter.js";
 import { fetchOtomoto } from "./otomoto.js";
+import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
 const MAX_TOKENS = 8000;      // максимальна довжина відповіді Claude
@@ -189,11 +190,12 @@ export async function onRequestPost({ request, env }) {
   }
 
   // База знань сайту (статичний файл)
-  let K;
+  let K, kText;
   try {
     const kUrl = new URL("/data/knowledge.json", request.url);
     const res = env.ASSETS ? await env.ASSETS.fetch(kUrl) : await fetch(kUrl);
-    K = await res.json();
+    kText = await res.text();
+    K = JSON.parse(kText);
   } catch {
     return json({ error: "Не вдалося завантажити базу авто." }, 500);
   }
@@ -205,6 +207,13 @@ export async function onRequestPost({ request, env }) {
     is_car_listing: true, match: null, not_in_db: true, listing: { make: make || null, model: model || null }
   });
   if (url && inDatabase(K, null, null, url) === false) return notInDb();
+
+  // Кеш: те саме оголошення (ID на Otomoto або той самий текст) за останню добу — віддаємо готовий результат.
+  // Без Claude, без витрат і без зменшення ліміту.
+  const dataVersion = (await sha256(kText)).slice(0, 12);
+  const key = await cacheKey({ url, text, dataVersion });
+  const hit = await cacheGet(env, key).catch(() => null);
+  if (hit) return json({ ...hit.data, cached: true, cached_at: new Date(hit.at).toISOString() });
 
   // Обмеження кількості аналізів (на IP і загальне на добу)
   const limit = await checkRateLimit(request, env);
@@ -320,7 +329,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const { catalog_index, is_car_listing, ...rest } = r;
-  return json({
+  const result = {
     is_car_listing: true,
     match,
     source,
@@ -331,7 +340,9 @@ export async function onRequestPost({ request, env }) {
     questions_for_seller: (r.questions_for_seller || []).slice(0, 6),
     technical_risks: (r.technical_risks || []).slice(0, 5),
     extra_costs: (r.extra_costs || []).slice(0, 5)
-  });
+  };
+  await cachePut(env, key, result).catch(e => console.log("cache put failed", e));
+  return json(result);
 }
 
 export function onRequest({ request }) {

@@ -125,6 +125,7 @@
         <h2>Оцінка оголошення</h2>
         <p>Claude порівняв оголошення з нашою базою про цей двигун і коробку та оцінив ціну, пробіг і повноту опису.</p>
         ${ai.url && /^https:\/\/(www\.)?otomoto\.pl\//.test(ai.url) ? `<p class="ai-source">Оголошення: <a href="${esc(ai.url)}" target="_blank" rel="noopener">відкрити на Otomoto ↗</a></p>` : ""}
+        ${ai.cached && ai.cached_at ? `<p class="ai-source">Збережений результат аналізу від ${esc(new Date(ai.cached_at).toLocaleString("uk-UA", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }))}.</p>` : ""}
         ${ai.match_confidence === "low" ? `<p><b>Увага:</b> авто з оголошення розпізнано неточно — перевірте, що рік і двигун збігаються.</p>` : ""}
         ${CarCheckAI.render(ai)}
       </section>` : ""}

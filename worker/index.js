@@ -3,6 +3,7 @@
 // сюди потрапляють лише запити, для яких файлу немає, — тобто /api/*.
 import { onRequestPost, onRequest } from "../functions/api/analyze.js";
 export { RateLimiter } from "./limiter.js";
+export { AnalysisCache } from "./cache.js";
 
 export default {
   async fetch(request, env, ctx) {
