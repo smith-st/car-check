@@ -21,6 +21,8 @@ import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
 const MAX_TOKENS = 8000;      // максимальна довжина відповіді Claude
 const DEFAULT_MODEL = "claude-sonnet-5-5";
+// Модель можна обрати в запиті ({"model":"haiku"}) — лише з цього списку, щоб ніхто не викликав дорожчі моделі
+const MODELS = { sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-5-5" };
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -217,7 +219,10 @@ export async function onRequestPost({ request, env }) {
   // Кеш: те саме оголошення (ID на Otomoto або той самий текст) за останню добу — віддаємо готовий результат.
   // Без Claude, без витрат і без зменшення ліміту.
   const dataVersion = (await sha256(kText)).slice(0, 12);
-  const key = await cacheKey({ url, text, dataVersion });
+  const modelAlias = MODELS[body.model] ? body.model : null;
+  const model = modelAlias ? MODELS[modelAlias] : (env.CLAUDE_MODEL || DEFAULT_MODEL);
+  // Модель входить у ключ кешу: результати Sonnet і Haiku для одного оголошення зберігаються окремо
+  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") });
   const hit = await cacheGet(env, key).catch(() => null);
   if (hit) return json({ ...hit.data, cached: true, cached_at: new Date(hit.at).toISOString() });
 
@@ -279,7 +284,7 @@ export async function onRequestPost({ request, env }) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: env.CLAUDE_MODEL || DEFAULT_MODEL,
+        model,
         max_tokens: MAX_TOKENS,
         // Без кешування промпту: він короткий і щоразу інший (лише кандидати для цього авто),
         // а запис у кеш коштує на 25% дорожче звичайного вводу.
@@ -357,6 +362,8 @@ export async function onRequestPost({ request, env }) {
     match,
     source,
     url: url || null,
+    model,
+    usage: data.usage ? { input_tokens: data.usage.input_tokens, output_tokens: data.usage.output_tokens } : null,
     ...rest,
     red_flags: (r.red_flags || []).slice(0, 6),
     good_signs: (r.good_signs || []).slice(0, 4),
