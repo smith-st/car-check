@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=202611102237">
+  <link rel="stylesheet" href="styles/main.css?v=202611110940">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -27,9 +27,12 @@
   </header>
 
   <section class="hero">
-    <div class="badge">● Перевірка авто перед покупкою</div>
-    <h1>Знайте все про авто <em>до того</em>, як віддасте гроші</h1>
-    <p class="lead">Оберіть марку й модель або просто вставте посилання на оголошення — ми покажемо типові проблеми, слабкі місця двигуна та на що звернути увагу під час огляду.</p>
+    <div class="hero-text">
+      <div class="badge">● Перевірка авто перед покупкою</div>
+      <h1>Знайте все про авто <em>до того</em>, як віддасте гроші</h1>
+      <p class="lead">Оберіть марку й модель або просто вставте посилання на оголошення — ми покажемо типові проблеми, слабкі місця двигуна та на що звернути увагу під час огляду.</p>
+    </div>
+    <img class="hero-art" src="images/hero.svg" alt="" width="520" height="420">
   </section>
 
   <section class="panel" id="check">
@@ -91,6 +94,7 @@
           </div>
         </div>
         <div class="msg" id="url-msg"></div>
+        <img class="analyzing" id="analyzing" src="images/analyzing.svg" alt="" width="320" height="110" hidden>
         <div id="text-wrap" class="field" hidden>
           <label for="listing">Текст оголошення</label>
           <textarea id="listing" rows="7" maxlength="8000" placeholder="Відкрийте оголошення, виділіть усе (Ctrl+A), скопіюйте (Ctrl+C) і вставте сюди. Головне — назва, параметри, ціна й опис продавця."></textarea>
@@ -112,9 +116,9 @@
   <section class="section" id="how">
     <h2>Як це працює</h2>
     <div class="steps">
-      <div class="step"><h3>Вкажіть авто</h3><p>Оберіть марку, модель, рік і двигун або вставте посилання на оголошення.</p></div>
-      <div class="step"><h3>Отримайте звіт</h3><p>Типові несправності, ресурс вузлів і на що скаржаться власники саме цієї версії.</p></div>
-      <div class="step"><h3>Їдьте на огляд</h3><p>З готовим списком того, що перевірити, і питаннями, які варто поставити продавцю.</p></div>
+      <div class="step"><img class="step-art" src="images/step-1.svg" alt="" width="280" height="150" loading="lazy"><h3>Вкажіть авто</h3><p>Оберіть марку, модель, рік і двигун або вставте посилання на оголошення.</p></div>
+      <div class="step"><img class="step-art" src="images/step-2.svg" alt="" width="280" height="150" loading="lazy"><h3>Отримайте звіт</h3><p>Типові несправності, ресурс вузлів і на що скаржаться власники саме цієї версії.</p></div>
+      <div class="step"><img class="step-art" src="images/step-3.svg" alt="" width="280" height="150" loading="lazy"><h3>Їдьте на огляд</h3><p>З готовим списком того, що перевірити, і питаннями, які варто поставити продавцю.</p></div>
     </div>
   </section>
 
@@ -146,9 +150,9 @@
     </div>
   </footer>
 
-  <script src="data/bundle.js?v=202611102237"></script>
-  <script src="scripts/listing-url.js?v=202611102237"></script>
-  <script src="scripts/analysis.js?v=202611102237"></script>
-  <script src="scripts/app.js?v=202611102237"></script>
+  <script src="data/bundle.js?v=202611110940"></script>
+  <script src="scripts/listing-url.js?v=202611110940"></script>
+  <script src="scripts/analysis.js?v=202611110940"></script>
+  <script src="scripts/app.js?v=202611110940"></script>
 </body>
 </html>

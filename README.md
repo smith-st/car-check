@@ -13,6 +13,8 @@ scripts/car.js           — логіка сторінки авто
 scripts/analysis.js      — виклик /api/analyze і показ аналізу оголошення
 scripts/listing-url.js   — перевірка, що посилання веде на конкретне оголошення
 scripts/build.js         — збирання й перевірка даних (див. нижче)
+scripts/body-types.js    — тип кузова моделі для ілюстрації на сторінці авто
+images/                  — векторні ілюстрації (SVG): hero, кроки, силуети кузовів, порожній стан, анімація аналізу
 
 data/engines/            — двигуни за виробником: vag.js, mazda.js, toyota.js, ford.js, psa.js
 data/gearboxes/          — коробки: manual.js (МКПП), vag.js (DSG, 09G), mazda.js, toyota.js, ford.js

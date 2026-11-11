@@ -27,6 +27,7 @@
     document.title = "Авто не знайдено — Car Check";
     app.innerHTML = `
       <div class="notfound">
+        <img class="notfound-art" src="images/empty-garage.svg" alt="" width="320" height="220">
         <h1>Авто не знайдено</h1>
         <p>Такої комбінації немає в нашій базі або посилання пошкоджене. Спробуйте обрати авто ще раз.</p>
         <a class="btn" href="index.html#check">Обрати авто</a>
@@ -92,6 +93,7 @@
     <div class="crumbs"><a href="index.html">Головна</a> / ${esc(P.make)} / ${esc(P.model)} / ${esc(gen.generation)}</div>
 
     <section class="car-hero">
+      <img class="car-art" src="images/car-${(window.CarCheckBody && CarCheckBody(P.model)) || "hatch"}.svg" alt="" width="320" height="140">
       <div class="gen">${esc(gen.generation)} · ${yrs(gen.years)}</div>
       <h1>${esc(title)}</h1>
       <div class="specs">

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110" fill="none">
+  <style>
+    .scan { animation: scan 1.8s ease-in-out infinite alternate; }
+    .wheel { animation: spin 1s linear infinite; transform-box: fill-box; transform-origin: center; }
+    .road { animation: road .6s linear infinite; }
+    @keyframes scan { from { transform: translateX(0); } to { transform: translateX(190px); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes road { to { transform: translateX(-30px); } }
+  </style>
+  <g class="road"><path d="M0 100h350" stroke="#2b313a" stroke-width="3" stroke-dasharray="18 12" stroke-linecap="round"/></g>
+  <g transform="translate(40 4) scale(.75)">
+    <path d="M24 100V62q2-14 16-16l130-2q10 0 18 6l36 24 48 6q16 2 18 14v10q0 4-4 4h-22a22 22 0 0 0-44 0H100a22 22 0 0 0-44 0H28q-4 0-4-4z" fill="#1c2027" stroke="#ffb020" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M40 72l2-16q2-4 8-4h60v20z" fill="#ffb020" fill-opacity=".14"/>
+    <path d="M118 52h54q6 0 10 4l22 16h-86z" fill="#ffb020" fill-opacity=".14"/>
+    <g class="wheel"><circle cx="78" cy="108" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/><path d="M78 94v28M64 108h28" stroke="#ffb020" stroke-width="3"/></g>
+    <g class="wheel"><circle cx="242" cy="108" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/><path d="M242 94v28M228 108h28" stroke="#ffb020" stroke-width="3"/></g>
+  </g>
+  <g class="scan">
+    <rect x="52" y="10" width="4" height="80" rx="2" fill="#ffb020"/>
+    <rect x="36" y="10" width="20" height="80" fill="#ffb020" opacity=".12"/>
+  </g>
+</svg>

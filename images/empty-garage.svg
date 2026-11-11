@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="none">
+  <ellipse cx="160" cy="196" rx="140" ry="8" fill="#000" opacity=".35"/>
+  <!-- гараж -->
+  <path d="M40 196V86l120-56 120 56v110" fill="#171a1f" stroke="#2b313a" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="80" y="104" width="160" height="92" rx="6" fill="#0f1114" stroke="#2b313a" stroke-width="2"/>
+  <!-- піднята брама -->
+  <path d="M80 104h160v20H80z" fill="#1c2027"/>
+  <path d="M80 114h160M80 124h160" stroke="#2b313a" stroke-width="2"/>
+  <!-- розмітка місця -->
+  <path d="M100 190h120" stroke="#ffb020" stroke-opacity=".35" stroke-width="3" stroke-dasharray="10 8" stroke-linecap="round"/>
+  <!-- знак питання -->
+  <circle cx="160" cy="156" r="24" fill="#ffb020" fill-opacity=".12"/>
+  <path d="M152 148a8 8 0 1 1 12 7c-3 2-4 3-4 6" stroke="#ffb020" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="160" cy="169" r="2.6" fill="#ffb020"/>
+  <circle cx="160" cy="68" r="10" fill="#1c2027" stroke="#2b313a" stroke-width="2"/>
+</svg>

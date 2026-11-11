@@ -426,3 +426,20 @@ textarea::placeholder { color: #5d6672; }
 #text-wrap { margin-top: 6px; }
 .ai-source { font-size: 14px; color: var(--muted); }
 .ai-source a { color: var(--accent); }
+
+/* ---------- Ілюстрації ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); align-items: center; gap: 24px; }
+.hero-art { width: 100%; height: auto; display: block; }
+.step-art { width: 100%; height: auto; display: block; margin-bottom: 16px; }
+.analyzing { display: block; width: 100%; max-width: 320px; height: auto; margin: 6px auto 0; }
+.car-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; }
+.car-hero > *:not(.car-art) { grid-column: 1; }
+.car-art { grid-column: 2; grid-row: 1 / span 4; align-self: center; width: 320px; max-width: 100%; height: auto; }
+.notfound-art { width: 260px; max-width: 80%; height: auto; display: block; margin: 0 auto 20px; }
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-art { max-width: 380px; margin: 0 auto; }
+  .car-hero { grid-template-columns: 1fr; }
+  .car-art { grid-column: 1; grid-row: auto; order: -1; width: 240px; margin-bottom: 12px; }
+}
+@media print { .hero-art, .car-art, .step-art, .analyzing { display: none; } }

@@ -181,6 +181,7 @@
     }
 
     goLink.classList.add("loading");
+    $("analyzing").hidden = false;
     $("go-link-text").textContent = "Аналізую…";
     setMsg(text ? "Claude оцінює оголошення, це займає 20–40 секунд…"
                 : "Завантажуємо оголошення з Otomoto, і Claude його оцінює — це займає 20–40 секунд…");
@@ -191,7 +192,7 @@
       if (e.data && e.data.need_text) { showText(); listing.focus(); }
       return;
     }
-    finally { goLink.classList.remove("loading"); $("go-link-text").textContent = "Аналізувати"; }
+    finally { goLink.classList.remove("loading"); $("analyzing").hidden = true; $("go-link-text").textContent = "Аналізувати"; }
 
     if (!r.is_car_listing) return setMsg("Схоже, це не оголошення про продаж авто.", "err");
     setMsg("");
