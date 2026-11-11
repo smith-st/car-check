@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css?v=202611111742">
+  <link rel="stylesheet" href="styles/main.css?v=202611112128">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -87,11 +87,18 @@
           <label for="url">Посилання на оголошення з Otomoto</label>
           <div class="link-row">
             <input type="url" id="url" placeholder="https://www.otomoto.pl/osobowe/oferta/..." autocomplete="off">
-            <button class="btn" id="go-link">
-              <span id="go-link-text">Аналізувати</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </button>
           </div>
+        </div>
+        <div class="field vin-field">
+          <label for="vin">VIN <span class="opt">— необов'язково, але дуже бажано</span></label>
+          <input type="text" id="vin" maxlength="20" placeholder="Напр. WVWZZZ1KZ8W123456" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <span class="hint">На Otomoto натисніть «Pokaż VIN» і скопіюйте номер. З VIN Claude звірить рік і марку та пошукає історію авто в інтернеті (аукціони, старі оголошення).</span>
+        </div>
+        <div class="link-go">
+          <button class="btn" id="go-link">
+            <span id="go-link-text">Аналізувати</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
         </div>
         <div class="msg" id="url-msg"></div>
         <img class="analyzing" id="analyzing" src="images/analyzing.svg" alt="" width="320" height="110" hidden>
@@ -150,9 +157,9 @@
     </div>
   </footer>
 
-  <script src="data/bundle.js?v=202611111742"></script>
-  <script src="scripts/listing-url.js?v=202611111742"></script>
-  <script src="scripts/analysis.js?v=202611111742"></script>
-  <script src="scripts/app.js?v=202611111742"></script>
+  <script src="data/bundle.js?v=202611112128"></script>
+  <script src="scripts/listing-url.js?v=202611112128"></script>
+  <script src="scripts/analysis.js?v=202611112128"></script>
+  <script src="scripts/app.js?v=202611112128"></script>
 </body>
 </html>

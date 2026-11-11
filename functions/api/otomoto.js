@@ -20,6 +20,23 @@ const usable = v => v != null && String(v).trim() !== "" && !/^[A-Za-z0-9+/]{20,
 
 const SELLER = { PROFESSIONAL: "фірма / автосалон / коміс", PRIVATE: "приватна особа", BUSINESS: "фірма" };
 
+// Фото оголошення: посилання на CDN OLX/Otomoto (…apollo.olxcdn.com/v1/files/<id>/image;s=WxH).
+// Беремо до MAX_PHOTOS штук у розмірі ~1024×768 — цього досить, щоб Claude побачив кузов, салон і панель приладів.
+export const MAX_PHOTOS = 10;
+function photosFrom(a) {
+  let src;
+  try { src = JSON.stringify(a.images || a.photos || a.gallery || a); } catch { return []; }
+  const re = /https:\/\/([a-z0-9.-]*apollo[a-z0-9.-]*\.olxcdn\.com)\/v1\/files\/([^/"\\;?]+)\/image/g;
+  const seen = new Set(), out = [];
+  for (const m of src.matchAll(re)) {
+    if (seen.has(m[2])) continue;
+    seen.add(m[2]);
+    out.push(`https://${m[1]}/v1/files/${m[2]}/image;s=1024x768`);
+    if (out.length >= MAX_PHOTOS) break;
+  }
+  return out;
+}
+
 export async function fetchOtomoto(url, maxChars = 8000) {
   let res;
   try {
@@ -101,5 +118,5 @@ export async function fetchOtomoto(url, maxChars = 8000) {
     power_hp: Number((get("engine_power") || "").replace(/km.*$/i, "").replace(/\D/g, "")) || null,    // «190 KM» → 190
     gearbox: /automat/i.test(get("gearbox") || "") ? "auto" : /manual/i.test(get("gearbox") || "") ? "manual" : null
   };
-  return { ok: true, text, make: specs.make, model: specs.model, title: a.title, specs };
+  return { ok: true, text, make: specs.make, model: specs.model, title: a.title, specs, photos: photosFrom(a), vin: get("vin") };
 }

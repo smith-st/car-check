@@ -98,7 +98,7 @@ h1 em { font-style: normal; color: var(--accent); }
 }
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
-select, input[type="url"] {
+select, input[type="url"], .vin-field input {
   width: 100%; font: 500 16px "Manrope", sans-serif; color: var(--text);
   background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 14px 14px; outline: none; transition: border-color .15s, box-shadow .15s;
@@ -443,3 +443,24 @@ textarea::placeholder { color: #5d6672; }
   .car-art { grid-column: 1; grid-row: auto; order: -1; width: 240px; margin-bottom: 12px; }
 }
 @media print { .hero-art, .car-art, .step-art, .analyzing { display: none; } }
+
+/* VIN і фото в аналізі */
+.vin-field { margin-top: 14px; }
+.vin-field input::placeholder { text-transform: none; letter-spacing: 0; font-family: inherit; }
+.link-go { margin-top: 16px; }
+.vin-field input { text-transform: uppercase; font-family: ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; }
+.vin-field .hint { font-size: 12.5px; color: var(--muted); }
+.vin-sec .trisks, .vin-sec .trisk { margin-bottom: 8px; }
+.vin-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.vin-head code { font-size: 15px; font-weight: 700; letter-spacing: .06em; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; }
+.vin-head span { font-size: 13px; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; padding: 3px 8px; }
+.vin-sum { font-size: 14.5px; margin: 6px 0 10px; }
+.vin-sec a, .trisk a { color: var(--accent); }
+.trisk.photo { grid-template-columns: 112px 1fr; align-items: start; }
+.trisk.photo .ph { display: block; position: relative; border-radius: 8px; overflow: hidden; }
+.trisk.photo .ph img { display: block; width: 112px; height: 84px; object-fit: cover; background: var(--card); }
+.trisk.photo .ph span { position: absolute; left: 4px; bottom: 4px; font-size: 11px; font-weight: 700; background: rgba(0,0,0,.65); color: #fff; padding: 1px 6px; border-radius: 6px; }
+.trisk.photo .sev { display: inline-block; margin-bottom: 4px; }
+.trisk.photo.info .sev { background: rgba(60,207,142,.12); color: var(--ok); }
+.trisk .chk { font-size: 13.5px; color: var(--text, inherit); margin-top: 4px; }
+@media (max-width: 640px) { .trisk.photo { grid-template-columns: 96px 1fr; } .trisk.photo .ph img { width: 96px; height: 72px; } }

@@ -15,6 +15,7 @@
 import { checkListingUrl } from "../../scripts/listing-url.js";
 import { checkRateLimit } from "../../worker/limiter.js";
 import { fetchOtomoto } from "./otomoto.js";
+import { normalizeVin, findVinInText, decodeVin, compareVin, vinForPrompt } from "./vin.js";
 import { fromSpecs, fromText, canonModel } from "./match.js";
 import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
 
@@ -23,6 +24,7 @@ const MAX_TOKENS = 8000;      // максимальна довжина відп�
 const DEFAULT_MODEL = "claude-sonnet-5-5";
 // Модель можна обрати в запиті ({"model":"haiku"}) — лише з цього списку, щоб ніхто не викликав дорожчі моделі
 const MODELS = { sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-5-5" };
+const VIN_SEARCHES = 3;       // скільки пошуків в інтернеті за VIN дозволено Claude за один аналіз
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -81,13 +83,30 @@ const REPORT_SCHEMA = obj({
   }), "Очікувані витрати після покупки: реєстрація/акциз, регламентні роботи за пробігом, відомі проблеми. До 5 пунктів."),
   red_flags: arr(obj({ severity: en(["high", "medium", "low"]), text: { type: "string" } }), "До 6 тривожних ознак у самому оголошенні."),
   good_signs: arr({ type: "string" }, "До 4 плюсів."),
-  questions_for_seller: arr({ type: "string" }, "До 6 конкретних питань продавцю.")
+  questions_for_seller: arr({ type: "string" }, "До 6 конкретних питань продавцю."),
+  vin_check: {
+    anyOf: [obj({
+      summary: str("2–4 речення: що відомо з VIN (виробник, країна, рік, розбіжності з оголошенням) і що знайдено або не знайдено в інтернеті."),
+      findings: arr(obj({
+        title: str("Що це за джерело, наприклад «Аукціон Copart, 2021» чи «Старе оголошення на OLX»."),
+        url: str("Точна адреса сторінки з результатів пошуку."),
+        text: str("1–2 речення: що саме там про це авто (пошкодження, пробіг, ціна, дата). Лише якщо VIN на сторінці збігається повністю.")
+      }), "Знахідки за VIN з результатів пошуку. Порожній список, якщо нічого не знайдено або пошуку не було.")
+    }), { type: "null" }],
+    description: "Перевірка за VIN. null, якщо VIN не надано."
+  },
+  photo_observations: arr(obj({
+    photo: { type: "integer", description: "Номер фото (1, 2, 3…)." },
+    severity: en(["high", "medium", "low", "info"]),
+    text: str("Що саме видно на фото: конкретно, без здогадок."),
+    check: str("Що перевірити наживо або спитати в продавця.")
+  }), "До 8 спостережень за фото оголошення. Порожній список, якщо фото немає.")
 });
 
 // ---------- Інструкції для Claude ----------
 // subset — індекси K.catalog, які передаємо Claude (лише кандидати для цього оголошення).
 // Номери рядків у промпті — 0…n-1 у межах subset; описи — лише двигунів і коробок цих кандидатів.
-function systemPrompt(K, subset, year) {
+function systemPrompt(K, subset, year, extra = {}) {
   const rows = subset.map(i => K.catalog[i]);
   const engineKeys = new Set(rows.map(c => c.engine_key));
   const gearboxKeys = new Set(rows.flatMap(c => [...c.manual, ...c.auto]));
@@ -134,7 +153,25 @@ function systemPrompt(K, subset, year) {
 - Технічні ризики спирай на БАЗУ ЗНАНЬ; не приписуй двигуну чи коробці проблем, яких там немає, без явного «за відгуками власників».
 - Пиши українською. Суми — у валюті оголошення.
 - Відповідай лише JSON за заданою схемою.
-
+${extra.vin ? `
+ПЕРЕВІРКА ЗА VIN:
+${extra.vin}
+${extra.search ? `- Зроби до ${VIN_SEARCHES} пошуків в інтернеті за цим VIN (спершу просто VIN у лапках, далі — з «copart», «iaai» чи «otomoto»/«olx», якщо є сенс). Шукай аукціони пошкоджених авто (Copart, IAAI та їхні архіви), старі оголошення (інший пробіг, ціна, фото пошкоджень), відкличні кампанії.
+- У findings — лише сторінки з результатів пошуку, де VIN збігається ПОВНІСТЮ (усі 17 символів). Схожий номер — це інше авто, не згадуй його. Адресу бери точно з результатів.
+- Якщо нічого не знайдено — так і напиши: це добрий знак, але не гарантія.
+- Знахідки (аукціон після ДТП, більший пробіг раніше) обов'язково врахуй у вердикті, тривожних ознаках і питаннях продавцю.` : "- Пошук в інтернеті зараз недоступний: findings — порожній список, у summary — лише розшифровка VIN."}
+- Розбіжності VIN з оголошенням — серйозна тривожна ознака.
+` : `
+VIN не надано: vin_check = null. Якщо у VIN немає в оголошенні — додай це в missing і порадь попросити VIN у продавця.
+`}${extra.photos ? `
+ФОТО: до оголошення додано ${extra.photos} фото, пронумерованих «Фото 1», «Фото 2»…
+- Опиши в photo_observations лише те, що справді видно: різний відтінок фарби на деталях, нерівні зазори, сліди ремонту, іржа, вм'ятини, знос салону, керма й сидінь (порівняй з пробігом), індикатори несправностей на панелі, пробіг на одометрі (чи збігається з оголошенням), стан шин, невідповідність фото й опису (колір, комплектація, інше авто).
+- Не роби висновків, яких фото не підтверджує («було в ДТП»): пиши «видно…, варто перевірити товщиномером».
+- Якщо фото малі чи нечіткі — так і скажи; якщо видимих проблем немає — одне спостереження severity «info».
+- Важливі спостереження врахуй у вердикті й тривожних ознаках.
+` : `
+ФОТО не додано: photo_observations — порожній список.
+`}
 КАТАЛОГ — кандидати з бази (номер | марка модель покоління | двигун | роки | ключ двигуна | коробки):
 ${catalogLines}
 
@@ -196,6 +233,12 @@ export async function onRequestPost({ request, env }) {
   if (!text && !url) return json({ error: "Вставте посилання на оголошення." }, 400);
   if (text && text.length < 40) return json({ error: "Вставте повний текст оголошення (хоча б кілька речень)." }, 400);
   if (text.length > MAX_TEXT) return json({ error: `Текст задовгий: максимум ${MAX_TEXT} символів.` }, 400);
+  // VIN від користувача (необов'язковий)
+  let vin = null;
+  if (body.vin && String(body.vin).trim()) {
+    vin = normalizeVin(body.vin);
+    if (!vin) return json({ error: "VIN має складатися з 17 латинських літер і цифр (без I, O, Q). Перевірте номер.", reason: "bad_vin" }, 400);
+  }
 
   // Посилання (якщо є) має вести на конкретне оголошення з підтримуваного сайту
   if (url) {
@@ -230,7 +273,7 @@ export async function onRequestPost({ request, env }) {
   // Необов'язковий рівень зусиль Claude: low | medium | high | xhigh (за замовчуванням — як у моделі)
   const effort = ["low", "medium", "high", "xhigh"].includes(body.effort) ? body.effort : null;
   // Модель входить у ключ кешу: результати Sonnet і Haiku для одного оголошення зберігаються окремо
-  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") + (effort ? ":" + effort : "") });
+  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") + (effort ? ":" + effort : "") + (vin ? ":" + vin : "") });
   const hit = await cacheGet(env, key).catch(() => null);
   if (hit) return json({ ...hit.data, cached: true, cached_at: new Date(hit.at).toISOString() });
 
@@ -249,7 +292,7 @@ export async function onRequestPost({ request, env }) {
 
   // Лише посилання — завантажуємо оголошення з Otomoto самі.
   // Якщо не вийшло — просимо користувача вставити текст (need_text).
-  let source = "text", specs = null;
+  let source = "text", specs = null, photos = [];
   if (!text) {
     const fetched = await fetchOtomoto(url, MAX_TEXT);
     if (!fetched.ok) {
@@ -265,7 +308,14 @@ export async function onRequestPost({ request, env }) {
     text = fetched.text;
     source = "otomoto";
     specs = fetched.specs || null;
+    photos = env.PHOTOS === "off" ? [] : (fetched.photos || []);
+    if (!vin && fetched.vin) vin = normalizeVin(fetched.vin);
   }
+  // VIN могли написати в описі
+  if (!vin) vin = findVinInText(text);
+  const vinDec = vin ? decodeVin(vin) : null;
+  const vinMismatches = vinDec ? compareVin(vinDec, specs) : [];
+  const search = !!vinDec && env.VIN_SEARCH !== "off";
 
   // Підбір кандидатів кодом: Claude отримує лише їх, а не всю базу
   const pick = specs && specs.make && specs.model ? fromSpecs(K, specs) : fromText(K, text);
@@ -282,53 +332,51 @@ export async function onRequestPost({ request, env }) {
   }
   const subset = pick.indices;
 
-  let apiRes;
-  try {
-    apiRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: effort === "high" || effort === "xhigh" ? 16000 : MAX_TOKENS,
-        // Без кешування промпту: він короткий і щоразу інший (лише кандидати для цього авто),
-        // а запис у кеш коштує на 25% дорожче звичайного вводу.
-        system: systemPrompt(K, subset, now),
-        output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA }, ...(effort ? { effort } : {}) },
-        messages: [{
-          role: "user",
-          content: `${url ? `Посилання: ${url}\n\n` : ""}<listing>\n${text}\n</listing>`
-        }]
-      })
+  // Запит до Claude. Якщо Anthropic не зміг завантажити фото чи вебпошук недоступний — повторюємо без них.
+  let usePhotos = photos.length > 0, useSearch = search;
+  let data = null, lastErr = null;
+  for (let attempt = 0; attempt < 3 && !data; attempt++) {
+    const r1 = await callClaude({
+      env, model, effort,
+      system: systemPrompt(K, subset, now, {
+        vin: vinDec ? vinForPrompt(vinDec, vinMismatches) : null,
+        search: useSearch,
+        photos: usePhotos ? photos.length : 0
+      }),
+      content: userContent(url, text, usePhotos ? photos : []),
+      tools: useSearch ? [{ type: "web_search_20250305", name: "web_search", max_uses: VIN_SEARCHES }] : null
     });
-  } catch {
-    return json({ error: "Сервіс аналізу недоступний. Спробуйте пізніше." }, 502);
+    if (r1.ok) { data = r1.data; break; }
+    lastErr = r1;
+    console.log("Anthropic API error", r1.status, r1.info);
+    if (r1.status === 400 && usePhotos && /image|url|download|fetch|media/i.test(r1.info)) { usePhotos = false; continue; }
+    if (r1.status === 400 && useSearch && /web_search|tool/i.test(r1.info)) { useSearch = false; continue; }
+    break;
   }
-
-  if (!apiRes.ok) {
-    const detail = await apiRes.text().catch(() => "");
-    console.log("Anthropic API error", apiRes.status, detail.slice(0, 500));
-    // Тип і текст помилки Anthropic (без ключа) — щоб було видно причину: ключ, баланс, модель тощо
-    let info = "";
-    try { const e = JSON.parse(detail).error; info = `${e.type}: ${e.message}`; } catch { info = detail.slice(0, 200); }
-    const hint = apiRes.status === 401 ? " Перевірте ключ API."
-      : /credit|balance|billing/i.test(info) ? " Поповніть баланс у консолі Anthropic."
+  if (!data) {
+    if (lastErr.network) return json({ error: "Сервіс аналізу недоступний. Спробуйте пізніше." }, 502);
+    const hint = lastErr.status === 401 ? " Перевірте ключ API."
+      : /credit|balance|billing/i.test(lastErr.info) ? " Поповніть баланс у консолі Anthropic."
       : "";
-    return json({ error: "Сервіс аналізу повернув помилку." + hint, status: apiRes.status, detail: info.slice(0, 300) }, 502);
+    return json({ error: "Сервіс аналізу повернув помилку." + hint, status: lastErr.status, detail: lastErr.info.slice(0, 300) }, 502);
   }
 
-  const data = await apiRes.json();
-  const textBlock = (data.content || []).find(b => b.type === "text");
+  // Відповідь — текстові блоки після останнього результату пошуку
+  const blocks = data.content || [];
+  let lastTool = -1;
+  blocks.forEach((b, i) => { if (b.type === "web_search_tool_result" || b.type === "server_tool_use") lastTool = i; });
+  const answer = blocks.slice(lastTool + 1).filter(b => b.type === "text").map(b => b.text).join("");
+  // Адреси, які справді повернув пошук — щоб не показувати вигадані посилання
+  const seenUrls = new Set();
+  blocks.filter(b => b.type === "web_search_tool_result" && Array.isArray(b.content))
+    .forEach(b => b.content.forEach(x => x && x.url && seenUrls.add(x.url)));
   let r;
-  try { r = JSON.parse(textBlock.text); } catch {
-    console.log("Bad JSON from Claude", data.stop_reason, textBlock && textBlock.text.slice(0, 300));
+  try { r = JSON.parse(answer); } catch {
+    console.log("Bad JSON from Claude", data.stop_reason, answer.slice(0, 300));
     return json({
       error: "Не вдалося розібрати відповідь. Спробуйте ще раз.",
       stop_reason: data.stop_reason || null,
-      blocks: (data.content || []).map(b => b.type),
+      blocks: blocks.map(b => b.type),
       usage: data.usage || null
     }, 502);
   }
@@ -364,6 +412,28 @@ export async function onRequestPost({ request, env }) {
     if (year) match = { make: c.make, model: c.model, gen: c.generation, engine: c.engine, year, gb };
   }
 
+  // VIN: розбіжності ще й з тим, що Claude прочитав в оголошенні (для вставленого тексту)
+  let vinInfo = null;
+  if (vinDec) {
+    const more = compareVin(vinDec, r.listing || {});
+    const mism = [...new Set([...vinMismatches, ...more])];
+    vinInfo = {
+      value: vinDec.vin, maker: vinDec.maker, country: vinDec.country, north_america: vinDec.north_america,
+      year: vinDec.year_candidates.length === 1 ? vinDec.year_candidates[0] : null,
+      mismatches: mism, searched: useSearch
+    };
+  }
+  if (r.vin_check) {
+    r.vin_check.findings = (r.vin_check.findings || [])
+      .filter(f => f && /^https?:\/\//.test(f.url) && (seenUrls.has(f.url) || [...seenUrls].some(u => u.split("#")[0] === f.url.split("#")[0])))
+      .slice(0, 6);
+  }
+  if (!vinDec) r.vin_check = null;
+  r.photo_observations = usePhotos
+    ? (r.photo_observations || []).filter(o => Number.isInteger(o.photo) && o.photo >= 1 && o.photo <= photos.length)
+        .map(o => ({ ...o, severity: lc(o.severity) })).slice(0, 8)
+    : [];
+
   const { catalog_index, is_car_listing, ...rest } = r;
   const result = {
     is_car_listing: true,
@@ -372,7 +442,12 @@ export async function onRequestPost({ request, env }) {
     url: url || null,
     model,
     effort: effort || "default",
-    usage: data.usage ? { input_tokens: data.usage.input_tokens, output_tokens: data.usage.output_tokens } : null,
+    usage: data.usage ? {
+      input_tokens: data.usage.input_tokens, output_tokens: data.usage.output_tokens,
+      web_searches: (data.usage.server_tool_use && data.usage.server_tool_use.web_search_requests) || 0
+    } : null,
+    vin: vinInfo,
+    photos: usePhotos ? photos : [],
     ...rest,
     red_flags: (r.red_flags || []).slice(0, 6),
     good_signs: (r.good_signs || []).slice(0, 4),
@@ -382,6 +457,64 @@ export async function onRequestPost({ request, env }) {
   };
   await cachePut(env, key, result).catch(e => console.log("cache put failed", e));
   return json(result);
+}
+
+// Повідомлення користувача: текст оголошення й фото з номерами
+function userContent(url, text, photos) {
+  const content = [{ type: "text", text: `${url ? `Посилання: ${url}\n\n` : ""}<listing>\n${text}\n</listing>` }];
+  photos.forEach((u, i) => {
+    content.push({ type: "text", text: `Фото ${i + 1}:` });
+    content.push({ type: "image", source: { type: "url", url: u } });
+  });
+  return content;
+}
+
+// Виклик Messages API. Вебпошук може зупинити відповідь (stop_reason = pause_turn) — тоді продовжуємо.
+async function callClaude({ env, model, effort, system, content, tools }) {
+  const messages = [{ role: "user", content }];
+  let data = null;
+  for (let turn = 0; turn < 4; turn++) {
+    let res;
+    try {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: effort === "high" || effort === "xhigh" ? 16000 : MAX_TOKENS,
+          // Без кешування промпту: він щоразу інший (лише кандидати для цього авто)
+          system,
+          output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA }, ...(effort ? { effort } : {}) },
+          ...(tools ? { tools } : {}),
+          messages
+        })
+      });
+    } catch {
+      return { ok: false, network: true, status: 0, info: "network" };
+    }
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      let info = "";
+      try { const e = JSON.parse(detail).error; info = `${e.type}: ${e.message}`; } catch { info = detail.slice(0, 200); }
+      return { ok: false, status: res.status, info };
+    }
+    const part = await res.json();
+    if (!data) data = part;
+    else {
+      data.content = [...data.content, ...(part.content || [])];
+      data.stop_reason = part.stop_reason;
+      for (const k of ["input_tokens", "output_tokens"]) data.usage[k] = (data.usage[k] || 0) + ((part.usage || {})[k] || 0);
+      const st = (part.usage || {}).server_tool_use;
+      if (st) data.usage.server_tool_use = { web_search_requests: ((data.usage.server_tool_use || {}).web_search_requests || 0) + (st.web_search_requests || 0) };
+    }
+    if (part.stop_reason !== "pause_turn") break;
+    messages.push({ role: "assistant", content: part.content });
+  }
+  return { ok: true, data };
 }
 
 export function onRequest({ request }) {

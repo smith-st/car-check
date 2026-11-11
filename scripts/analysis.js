@@ -3,13 +3,13 @@ window.CarCheckAI = (function () {
   const KEY = "carcheck-analysis";
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  async function analyze(text, url) {
+  async function analyze(text, url, vin) {
     let res;
     try {
       res = await fetch("api/analyze", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text, url })
+        body: JSON.stringify({ text, url, vin: vin || undefined })
       });
     } catch {
       throw new Error("Немає з'єднання з сервером аналізу.");
@@ -81,6 +81,49 @@ window.CarCheckAI = (function () {
       </div>`;
   }
 
+  // Перевірка за VIN: розшифровка, розбіжності, знахідки в інтернеті
+  function vinBlock(r) {
+    const v = r.vin;
+    if (!v) return `<div class="ai-sec"><h4>Перевірка за VIN</h4>
+      <p class="sub-line">VIN не вказано. Попросіть його в продавця (на Otomoto — кнопка «Pokaż VIN») і перевірте авто ще раз:
+      Car Check звірить рік і марку та пошукає історію авто в інтернеті.</p></div>`;
+    const c = r.vin_check || {};
+    const facts = [
+      v.maker && `Виробник: ${v.maker}`,
+      v.country && `Зібрано: ${v.country}`,
+      v.year && `Модельний рік: ${v.year}`
+    ].filter(Boolean);
+    const found = (c.findings || []);
+    return `<div class="ai-sec vin-sec">
+      <h4>Перевірка за VIN</h4>
+      <div class="vin-head"><code>${esc(v.value)}</code>${facts.map(f => `<span>${esc(f)}</span>`).join("")}</div>
+      ${v.north_america ? `<div class="trisk high"><span class="sev">Увага</span><div><b>Авто з ринку США / Канади</b><p>Такі авто часто пригнані після ДТП з аукціонів. Перевірте історію за VIN особливо уважно.</p></div></div>` : ""}
+      ${(v.mismatches || []).map(m => `<div class="trisk high"><span class="sev">Розбіжність</span><div><p>${esc(m)}</p></div></div>`).join("")}
+      ${c.summary ? `<p class="vin-sum">${esc(c.summary)}</p>` : ""}
+      ${found.length ? `<div class="trisks">${found.map(f => `<div class="trisk medium"><span class="sev">Знайдено</span>
+        <div><b><a href="${esc(f.url)}" target="_blank" rel="noopener nofollow">${esc(f.title)}</a></b><p>${esc(f.text)}</p></div></div>`).join("")}</div>`
+        : v.searched ? `<p class="sub-line">У відкритих джерелах за цим VIN нічого не знайдено — це добрий знак, але не гарантія.</p>` : ""}
+      <p class="sub-line">Безкоштовна державна перевірка: <a href="https://historiapojazdu.gov.pl/" target="_blank" rel="noopener">historiapojazdu.gov.pl</a>
+        — пробіги з техогляду, кількість власників, пошкодження. Потрібні VIN, номер і дата першої реєстрації (спитайте в продавця).</p>
+    </div>`;
+  }
+
+  // Що Claude побачив на фото оголошення
+  const PSEV = { high: "Важливо", medium: "Увага", low: "Дрібниця", info: "Норма" };
+  function photoBlock(r) {
+    const obs = r.photo_observations || [];
+    if (!obs.length || !(r.photos || []).length) return "";
+    const thumb = n => (r.photos[n - 1] || "").replace(/;s=\d+x\d+$/, ";s=320x240");
+    return `<div class="ai-sec">
+      <h4>Що видно на фото (${r.photos.length} фото)</h4>
+      <div class="trisks">${obs.map(o => `<div class="trisk photo ${esc(o.severity)}">
+        <a class="ph" href="${esc(r.photos[o.photo - 1])}" target="_blank" rel="noopener"><img src="${esc(thumb(o.photo))}" alt="Фото ${o.photo}" loading="lazy"><span>Фото ${o.photo}</span></a>
+        <div><span class="sev">${esc(PSEV[o.severity] || "")}</span><p>${esc(o.text)}</p>${o.check ? `<p class="chk">Перевірте: ${esc(o.check)}</p>` : ""}</div>
+      </div>`).join("")}</div>
+      <div class="sub-line">Claude бачить лише те, що на фото. Відсутність видимих дефектів не замінює огляд і перевірку товщиноміром.</div>
+    </div>`;
+  }
+
   function render(r) {
     const l = r.listing || {};
     const v = r.verdict || {};
@@ -141,6 +184,9 @@ window.CarCheckAI = (function () {
         </div>
         <div class="sub-line">Суми орієнтовні й залежать від стану авто та сервісу.</div>
       </div>` : ""}
+
+      ${vinBlock(r)}
+      ${photoBlock(r)}
 
       <div class="ai-grid">
         ${col("Тривожні ознаки", r.red_flags, "bad")}

@@ -165,6 +165,11 @@
     const rawUrl = $("url").value.trim();
     const text = listing.value.trim();
     if (!rawUrl && !text) return setMsg("Вставте посилання на оголошення з Otomoto.", "err");
+    // VIN: 17 латинських літер і цифр без I, O, Q
+    const vin = $("vin").value.toUpperCase().replace(/[\s-]/g, "");
+    if (vin && !/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
+      return setMsg("VIN має складатися з 17 латинських літер і цифр (без I, O, Q). Перевірте номер або залиште поле порожнім.", "err");
+    }
 
     if (rawUrl) {
       // Тільки посилання на конкретне оголошення Otomoto (не список, не пошук, не інший сайт)
@@ -174,7 +179,7 @@
       const found = detectCar(new URL(rawUrl).pathname);
       if (!found || (!found.model && !found.unsure)) {
         // Модель з адреси: otomoto.pl/…/oferta/<марка>-<модель>-…
-        const tail = new URL(rawUrl).pathname.split("/").pop().replace(/-ID[0-9A-Za-z]+\.html$/, "").split("-");
+        const tail = new URL(rawUrl).pathname.split("/").pop().replace(/-(?:[A-Z]+_)?ID[0-9A-Za-z]+\.html$/, "").split("-");
         const guess = found ? tail.slice(slug(found.make).split("-").length).slice(0, 1).join(" ") : "";
         return noInfo(found && found.make, found ? { model: guess ? guess.charAt(0).toUpperCase() + guess.slice(1) : null } : null);
       }
@@ -183,10 +188,10 @@
     goLink.classList.add("loading");
     $("analyzing").hidden = false;
     $("go-link-text").textContent = "Аналізую…";
-    setMsg(text ? "Claude оцінює оголошення, це займає 20–40 секунд…"
-                : "Завантажуємо оголошення з Otomoto, і Claude його оцінює — це займає 20–40 секунд…");
+    setMsg(text ? "Claude оцінює оголошення, це займає 30–60 секунд…"
+                : "Завантажуємо оголошення з Otomoto, і Claude його оцінює — це займає 30–60 секунд…");
     let r;
-    try { r = await CarCheckAI.analyze(text, rawUrl); }
+    try { r = await CarCheckAI.analyze(text, rawUrl, vin); }
     catch (e) {
       setMsg(e.message, "err");
       if (e.data && e.data.need_text) { showText(); listing.focus(); }
@@ -239,4 +244,6 @@
       .map(([mk, models]) => `${mk} ${Object.keys(models).join(", ")}`).join("; ");
   }
   $("url").addEventListener("keydown", e => { if (e.key === "Enter") goLink.click(); });
+  $("vin").addEventListener("keydown", e => { if (e.key === "Enter") goLink.click(); });
+  $("vin").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
 })();
