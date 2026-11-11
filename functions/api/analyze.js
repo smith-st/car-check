@@ -24,6 +24,8 @@ const MAX_TOKENS = 8000;      // максимальна довжина відп�
 const DEFAULT_MODEL = "claude-sonnet-5-5";
 // Модель можна обрати в запиті ({"model":"haiku"}) — лише з цього списку, щоб ніхто не викликав дорожчі моделі
 const MODELS = { sonnet: "claude-sonnet-5-5", haiku: "claude-haiku-5-5" };
+// Змінюється разом з форматом аналізу — старі результати з кешу після цього не віддаються
+const ANALYSIS_VERSION = "v2-vin-photos";
 const VIN_SEARCHES = 3;       // скільки пошуків в інтернеті за VIN дозволено Claude за один аналіз
 
 const json = (data, status = 200) =>
@@ -273,7 +275,7 @@ export async function onRequestPost({ request, env }) {
   // Необов'язковий рівень зусиль Claude: low | medium | high | xhigh (за замовчуванням — як у моделі)
   const effort = ["low", "medium", "high", "xhigh"].includes(body.effort) ? body.effort : null;
   // Модель входить у ключ кешу: результати Sonnet і Haiku для одного оголошення зберігаються окремо
-  const key = await cacheKey({ url, text, dataVersion: dataVersion + (modelAlias ? ":" + modelAlias : "") + (effort ? ":" + effort : "") + (vin ? ":" + vin : "") });
+  const key = await cacheKey({ url, text, dataVersion: ANALYSIS_VERSION + ":" + dataVersion + (modelAlias ? ":" + modelAlias : "") + (effort ? ":" + effort : "") + (vin ? ":" + vin : "") });
   const hit = await cacheGet(env, key).catch(() => null);
   if (hit) return json({ ...hit.data, cached: true, cached_at: new Date(hit.at).toISOString() });
 
