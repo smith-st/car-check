@@ -20,19 +20,20 @@
   <ellipse cx="250" cy="326" rx="190" ry="9" fill="#000" opacity=".4"/>
 
   <!-- авто (хетчбек) -->
-  <g transform="translate(50 172) scale(1.25)">
-    <path d="M24 100V62q2-14 16-16l130-2q10 0 18 6l36 24 48 6q16 2 18 14v10q0 4-4 4h-22a22 22 0 0 0-44 0H100a22 22 0 0 0-44 0H28q-4 0-4-4z" fill="#1c2027" stroke="#ffb020" stroke-width="2.4" stroke-linejoin="round"/>
-    <path d="M40 72l2-16q2-4 8-4h60v20z" fill="#ffb020" fill-opacity=".14" stroke="#ffb020" stroke-opacity=".5" stroke-width="1.5" stroke-linejoin="round"/>
-    <path d="M118 52h54q6 0 10 4l22 16h-86z" fill="#ffb020" fill-opacity=".14" stroke="#ffb020" stroke-opacity=".5" stroke-width="1.5" stroke-linejoin="round"/>
-    <path d="M114 48v60" stroke="#2b313a" stroke-width="2"/>
-    <path d="M282 88h10" stroke="#ffb020" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="78" cy="108" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/>
-    <circle cx="78" cy="108" r="7.5" fill="#ffb020"/>
-    <circle cx="242" cy="108" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/>
-    <circle cx="242" cy="108" r="7.5" fill="#ffb020"/>
+  <g transform="translate(24 172) scale(1.25)">
+    <path d="M34 106Q28 106 28 100L28 84Q28 76 32 72L52 50Q58 44 68 42Q110 34 152 36Q164 37 172 42L210 64Q250 68 276 76Q288 80 289 92L290 100Q290 106 284 106L258 106A22 22 0 0 0 214 106L106 106A22 22 0 0 0 62 106Z" fill="#1c2027" stroke="#ffb020" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M50 66L62 52Q66 47 74 46L106 43L106 66Z" fill="#ffb020" fill-opacity=".14" stroke="#ffb020" stroke-opacity=".5" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M114 42L150 41Q160 41 168 46L196 66L114 66Z" fill="#ffb020" fill-opacity=".14" stroke="#ffb020" stroke-opacity=".5" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M110 42v64" stroke="#2b313a" stroke-width="2"/>
+  <rect x="274" y="79" width="14" height="6" rx="3" fill="#ffb020"/>
+  <rect x="28" y="74" width="6" height="12" rx="3" fill="#ff5d5d"/>
+  
+    <circle cx="84" cy="106" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/><circle cx="84" cy="106" r="7.56" fill="#ffb020"/>
+  <circle cx="236" cy="106" r="18" fill="#0f1114" stroke="#8b95a3" stroke-width="3"/><circle cx="236" cy="106" r="7.56" fill="#ffb020"/>
   </g>
 
   <!-- лупа над двигуном: всередині «рентген» -->
+  <g transform="translate(83 -16) scale(.95)">
   <g clip-path="url(#lens)">
     <circle cx="334" cy="244" r="56" fill="#0f1114"/>
     <path d="M276 204h120M276 224h120M276 244h120M276 264h120M276 284h120M296 186v120M316 186v120M336 186v120M356 186v120M376 186v120" stroke="#ffb020" stroke-opacity=".12" stroke-width="1"/>
@@ -48,6 +49,8 @@
   <circle cx="334" cy="244" r="56" stroke="#ffb020" stroke-width="2" stroke-opacity=".7"/>
   <path d="M374 284l34 34" stroke="#eef1f5" stroke-width="14" stroke-linecap="round"/>
   <path d="M384 294l24 24" stroke="#ffb020" stroke-width="14" stroke-linecap="round"/>
+
+  </g>
 
   <!-- картка зі звітом -->
   <g transform="rotate(-4 120 110)">
@@ -65,7 +68,7 @@
   </g>
 
   <!-- бейдж оцінки -->
-  <g transform="translate(398 70)">
+  <g transform="translate(404 36)">
     <rect width="92" height="92" rx="22" fill="#ffb020"/>
     <path d="M28 47l12 12 24-26" stroke="#1a1203" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
