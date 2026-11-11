@@ -36,20 +36,22 @@ const json = (data, status = 200) =>
 
 // ---------- Схема відповіді (structured outputs) ----------
 const str = (description) => ({ type: "string", description });
-const nul = (t, description) => ({ type: [t, "null"], ...(description ? { description } : {}) });
+// Без null і anyOf: structured outputs компілюють схему в граматику з обмеженням розміру, а кожне «або null»
+// її подвоює. «Невідомо» передаємо як 0 / "" / -1 і перетворюємо на null після відповіді (див. unknownToNull).
+const nul = (t, description) => ({ type: t, description: ((description || "") + (t === "integer" ? " 0, якщо невідомо." : " Порожній рядок, якщо невідомо.")).trim() });
 const en = (values, description) => ({ type: "string", enum: values, ...(description ? { description } : {}) });
 const obj = (properties) => ({ type: "object", additionalProperties: false, properties, required: Object.keys(properties) });
 const arr = (items, description) => ({ type: "array", items, ...(description ? { description } : {}) });
 
 const REPORT_SCHEMA = obj({
   is_car_listing: { type: "boolean", description: "Чи це оголошення про продаж легкового авто." },
-  catalog_index: nul("integer", "Номер рядка КАТАЛОГУ, що відповідає авто, або null, якщо такого авто немає в каталозі чи даних замало."),
+  catalog_index: { type: "integer", description: "Номер рядка КАТАЛОГУ, що відповідає авто, або -1, якщо такого авто немає в каталозі чи даних замало." },
   match_confidence: en(["high", "medium", "low"]),
   listing: obj({
     make: nul("string"), model: nul("string"), year: nul("integer"),
     engine: nul("string", "Як вказано в оголошенні: об'єм, тип, потужність."),
     fuel: nul("string"),
-    gearbox: { anyOf: [en(["manual", "auto"]), { type: "null" }] },
+    gearbox: en(["manual", "auto", "unknown"]),
     mileage_km: nul("integer"), price: nul("integer"), currency: nul("string")
   }),
   verdict: obj({
@@ -86,17 +88,14 @@ const REPORT_SCHEMA = obj({
   red_flags: arr(obj({ severity: en(["high", "medium", "low"]), text: { type: "string" } }), "До 6 тривожних ознак у самому оголошенні."),
   good_signs: arr({ type: "string" }, "До 4 плюсів."),
   questions_for_seller: arr({ type: "string" }, "До 6 конкретних питань продавцю."),
-  vin_check: {
-    anyOf: [obj({
-      summary: str("2–4 речення: що відомо з VIN (виробник, країна, рік, розбіжності з оголошенням) і що знайдено або не знайдено в інтернеті."),
-      findings: arr(obj({
-        title: str("Що це за джерело, наприклад «Аукціон Copart, 2021» чи «Старе оголошення на OLX»."),
-        url: str("Точна адреса сторінки з результатів пошуку."),
-        text: str("1–2 речення: що саме там про це авто (пошкодження, пробіг, ціна, дата). Лише якщо VIN на сторінці збігається повністю.")
-      }), "Знахідки за VIN з результатів пошуку. Порожній список, якщо нічого не знайдено або пошуку не було.")
-    }), { type: "null" }],
-    description: "Перевірка за VIN. null, якщо VIN не надано."
-  },
+  vin_check: obj({
+    summary: str("2–4 речення: що відомо з VIN (виробник, країна, рік, розбіжності з оголошенням) і що знайдено або не знайдено в інтернеті. Порожній рядок, якщо VIN не надано."),
+    findings: arr(obj({
+      title: str("Що це за джерело, наприклад «Аукціон Copart, 2021» чи «Старе оголошення на OLX»."),
+      url: str("Точна адреса сторінки з результатів пошуку."),
+      text: str("1–2 речення: що саме там про це авто. Лише якщо VIN на сторінці збігається повністю.")
+    }), "Знахідки за VIN з результатів пошуку. Порожній список, якщо нічого не знайдено, пошуку не було чи VIN не надано.")
+  }),
   photo_observations: arr(obj({
     photo: { type: "integer", description: "Номер фото (1, 2, 3…)." },
     severity: en(["high", "medium", "low", "info"]),
@@ -104,6 +103,12 @@ const REPORT_SCHEMA = obj({
     check: str("Що перевірити наживо або спитати в продавця.")
   }), "До 8 спостережень за фото оголошення. Порожній список, якщо фото немає.")
 });
+
+// Запасна схема без блоків VIN і фото — якщо повна виявиться завеликою для API
+const COMPACT_SCHEMA = (() => {
+  const { vin_check, photo_observations, ...p } = REPORT_SCHEMA.properties;
+  return { ...REPORT_SCHEMA, properties: p, required: Object.keys(p) };
+})();
 
 // ---------- Інструкції для Claude ----------
 // subset — індекси K.catalog, які передаємо Claude (лише кандидати для цього оголошення).
@@ -130,9 +135,9 @@ function systemPrompt(K, subset, year, extra = {}) {
 
 Як працювати:
 1. Визнач з оголошення марку, модель, рік, двигун, коробку, пробіг і ціну.
-2. Знайди авто в КАТАЛОЗІ. Каталог уже звужено до кандидатів для цього оголошення (часто це один рядок). Обирай рядок, лише якщо марка, модель і покоління збігаються, рік входить у роки рядка, а двигун (об'єм, паливо, потужність) відповідає. Якщо жоден рядок не підходить — catalog_index = null.
+2. Знайди авто в КАТАЛОЗІ. Каталог уже звужено до кандидатів для цього оголошення (часто це один рядок). Обирай рядок, лише якщо марка, модель і покоління збігаються, рік входить у роки рядка, а двигун (об'єм, паливо, потужність) відповідає. Якщо жоден рядок не підходить — catalog_index = -1.
 3. Оціни пропозицію в цілому, пов'язуючи оголошення з БАЗОЮ ЗНАНЬ про цей двигун і коробку:
-   - ціна: орієнтовний ринковий діапазон для такого авто (рік, пробіг, двигун, коробка, країна продажу) на основі твоїх знань про ринок; якщо даних замало — assessment = unknown і fair_min/fair_max = null;
+   - ціна: орієнтовний ринковий діапазон для такого авто (рік, пробіг, двигун, коробка, країна продажу) на основі твоїх знань про ринок; якщо даних замало — assessment = unknown і fair_min/fair_max = 0;
    - пробіг: правдоподібність для віку (зараз ${year} р.) і типу палива;
    - технічні ризики: які відомі слабкі місця з БАЗИ ЗНАНЬ особливо актуальні при такому році й пробігу (наприклад, ланцюг ГРМ після 100 тис. км, зчеплення DQ200 у міському авто, DPF у дизеля з малим річним пробігом), і що з цього може бути вже зроблено за описом;
    - додаткові витрати: реєстрація/акциз для «do opłat», регламентні роботи, які за пробігом от-от знадобляться, відомі проблеми — з орієнтовними сумами;
@@ -164,7 +169,7 @@ ${extra.search ? `- Зроби до ${VIN_SEARCHES} пошуків в інтер
 - Знахідки (аукціон після ДТП, більший пробіг раніше) обов'язково врахуй у вердикті, тривожних ознаках і питаннях продавцю.` : "- Пошук в інтернеті зараз недоступний: findings — порожній список, у summary — лише розшифровка VIN."}
 - Розбіжності VIN з оголошенням — серйозна тривожна ознака.
 ` : `
-VIN не надано: vin_check = null. Якщо у VIN немає в оголошенні — додай це в missing і порадь попросити VIN у продавця.
+VIN не надано: vin_check.summary = "", vin_check.findings = []. Якщо у VIN немає в оголошенні — додай це в missing і порадь попросити VIN у продавця.
 `}${extra.photos ? `
 ФОТО: до оголошення додано ${extra.photos} фото, пронумерованих «Фото 1», «Фото 2»…
 - Опиши в photo_observations лише те, що справді видно: різний відтінок фарби на деталях, нерівні зазори, сліди ремонту, іржа, вм'ятини, знос салону, керма й сидінь (порівняй з пробігом), індикатори несправностей на панелі, пробіг на одометрі (чи збігається з оголошенням), стан шин, невідповідність фото й опису (колір, комплектація, інше авто).
@@ -338,6 +343,7 @@ export async function onRequestPost({ request, env }) {
   let usePhotos = photos.length > 0, useSearch = search;
   let data = null, lastErr = null;
   const notes = [];
+  let compact = false;
   for (let attempt = 0; attempt < 3 && !data; attempt++) {
     const r1 = await callClaude({
       env, model, effort,
@@ -347,14 +353,16 @@ export async function onRequestPost({ request, env }) {
         photos: usePhotos ? photos.length : 0
       }),
       content: userContent(url, text, usePhotos ? photos : []),
-      tools: useSearch ? [{ type: "web_search_20250305", name: "web_search", max_uses: VIN_SEARCHES }] : null
+      tools: useSearch ? [{ type: "web_search_20250305", name: "web_search", max_uses: VIN_SEARCHES }] : null,
+      schema: compact ? COMPACT_SCHEMA : REPORT_SCHEMA
     });
     if (r1.ok) { data = r1.data; break; }
     lastErr = r1;
     console.log("Anthropic API error", r1.status, r1.info);
     // Помилка запиту (400) з фото чи пошуком — прибираємо те, на що скаржиться API, і пробуємо ще раз,
     // щоб користувач отримав хоча б аналіз тексту. Причину зберігаємо в результаті (notes).
-    if (r1.status === 400 && (usePhotos || useSearch)) {
+    if (r1.status === 400 && (usePhotos || useSearch || (!compact && /grammar/i.test(r1.info)))) {
+      if (/grammar/i.test(r1.info)) { usePhotos = false; useSearch = false; notes.push("schema: " + r1.info.slice(0, 200)); compact = true; continue; }
       const aboutImage = /image|url|download|fetch|media/i.test(r1.info);
       const aboutTool = /web_search|tool|server|citation/i.test(r1.info);
       if (usePhotos && (aboutImage || !aboutTool)) { usePhotos = false; notes.push("photos: " + r1.info.slice(0, 200)); }
@@ -396,6 +404,7 @@ export async function onRequestPost({ request, env }) {
     return json({ is_car_listing: false, error: "Схоже, це не оголошення про продаж авто." }, 200);
   }
 
+  unknownToNull(r);
   // Регістр значень enum не гарантований — нормалізуємо
   const lc = v => (typeof v === "string" ? v.toLowerCase() : v);
   const clamp = (n, a, b) => (Number.isFinite(n) ? Math.min(b, Math.max(a, Math.round(n))) : null);
@@ -471,6 +480,17 @@ export async function onRequestPost({ request, env }) {
   return json(result);
 }
 
+// 0 / "" / -1 / "unknown" у полях, де схема не дозволяє null, — це «невідомо»
+function unknownToNull(r) {
+  if (r.catalog_index === -1) r.catalog_index = null;
+  const l = r.listing || {};
+  for (const k of ["make", "model", "engine", "fuel", "currency"]) if (l[k] === "") l[k] = null;
+  for (const k of ["year", "mileage_km", "price"]) if (!l[k]) l[k] = null;
+  if (l.gearbox === "unknown") l.gearbox = null;
+  if (r.price) for (const k of ["fair_min", "fair_max"]) if (!r.price[k]) r.price[k] = null;
+  if (r.mileage && !r.mileage.per_year_km) r.mileage.per_year_km = null;
+}
+
 // Повідомлення користувача: текст оголошення й фото з номерами
 function userContent(url, text, photos) {
   const content = [{ type: "text", text: `${url ? `Посилання: ${url}\n\n` : ""}<listing>\n${text}\n</listing>` }];
@@ -482,7 +502,7 @@ function userContent(url, text, photos) {
 }
 
 // Виклик Messages API. Вебпошук може зупинити відповідь (stop_reason = pause_turn) — тоді продовжуємо.
-async function callClaude({ env, model, effort, system, content, tools }) {
+async function callClaude({ env, model, effort, system, content, tools, schema }) {
   const messages = [{ role: "user", content }];
   let data = null;
   for (let turn = 0; turn < 4; turn++) {
@@ -500,7 +520,7 @@ async function callClaude({ env, model, effort, system, content, tools }) {
           max_tokens: effort === "high" || effort === "xhigh" ? 16000 : MAX_TOKENS,
           // Без кешування промпту: він щоразу інший (лише кандидати для цього авто)
           system,
-          output_config: { format: { type: "json_schema", schema: REPORT_SCHEMA }, ...(effort ? { effort } : {}) },
+          output_config: { format: { type: "json_schema", schema }, ...(effort ? { effort } : {}) },
           ...(tools ? { tools } : {}),
           messages
         })
