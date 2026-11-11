@@ -3,6 +3,7 @@
 //
 // Приклади оголошень:
 //   otomoto.pl  /osobowe/oferta/skoda-octavia-2-0-tdi-ID6GabcD.html   або /oferta/…-ID….html
+//               оголошення, перенесені з OLX: /osobowe/oferta/mazda-3-OLX_ID6Ifa5A.html
 //   olx.pl      /d/oferta/skoda-octavia-…-CID5-IDxyz.html            (також /d/uk/oferta/…)
 //   auto.ria.com /auto_skoda_octavia_39915829.html                   (також /uk/auto_…)
 // Списки й пошук (/osobowe/skoda/octavia?…, /motoryzacja/samochody/…, /search/…, /car/…) — не оголошення.
@@ -10,7 +11,7 @@
 // Поки що працюємо лише з Otomoto. Щоб увімкнути OLX чи AUTO.RIA, розкоментуйте рядки
 // (і додайте їм завантаження сторінки в functions/api/, як otomoto.js).
 const SITES = [
-  { host: "otomoto.pl",   name: "Otomoto",   listing: /^\/(?:[a-z-]+\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ }
+  { host: "otomoto.pl",   name: "Otomoto",   listing: /^\/(?:[a-z-]+\/)?oferta\/[^/]+-(?:[A-Z]+_)?ID[0-9A-Za-z]+\.html$/ }
   // { host: "olx.pl",       name: "OLX",       listing: /^\/d\/(?:[a-z]{2}\/)?oferta\/[^/]+-ID[0-9A-Za-z]+\.html$/ },
   // { host: "auto.ria.com", name: "AUTO.RIA",  listing: /^\/(?:(?:uk|ru)\/)?auto_[a-z0-9_]+_\d+\.html$/i }
 ];

@@ -163,7 +163,7 @@ function inDatabase(K, make, model, url) {
   // З адреси: otomoto.pl/…/oferta/<марка>-<модель>-…-ID….html
   if (url) {
     let slug = "";
-    try { slug = slugify(decodeURIComponent(new URL(url).pathname.split("/").pop().replace(/-ID[0-9A-Za-z]+\.html$/, ""))); } catch { return null; }
+    try { slug = slugify(decodeURIComponent(new URL(url).pathname.split("/").pop().replace(/-(?:[A-Z]+_)?ID[0-9A-Za-z]+\.html$/, ""))); } catch { return null; }
     if (!slug) return null;
     const mk = [...makes].find(m => slug === m || slug.startsWith(m + "-"));
     if (!mk) return false;

@@ -33,7 +33,7 @@ function ttl(env) {
 // Ключ кешу: для посилання без тексту — ID оголошення, для тексту — його відбиток.
 // dataVersion змінюється разом з базою знань, тож після оновлення бази старі результати не віддаються.
 export async function cacheKey({ url, text, dataVersion }) {
-  const id = !text && url ? (url.match(/-ID([0-9A-Za-z]+)\.html/) || [])[1] : null;
+  const id = !text && url ? (url.match(/-(?:[A-Z]+_)?ID([0-9A-Za-z]+)\.html/) || [])[1] : null;
   const base = id ? "otomoto:" + id : "text:" + await sha256(text.replace(/\s+/g, " ").trim() + "|" + (url || ""));
   return dataVersion + ":" + base;
 }
