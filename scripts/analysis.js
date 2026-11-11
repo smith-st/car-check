@@ -24,7 +24,9 @@ window.CarCheckAI = (function () {
         : "Сервер тимчасово не відповів. Спробуйте ще раз за хвилину.");
     }
     if (!res.ok || data.error) {
-      const err = new Error(data.error || "Помилка аналізу.");
+      // Технічна причина (статус і текст помилки API) — дрібним текстом, щоб було видно, що сталося
+      const tech = data.detail ? ` (${data.status || res.status}: ${data.detail})` : "";
+      const err = new Error((data.error || "Помилка аналізу.") + tech);
       err.data = data;
       throw err;
     }
@@ -187,6 +189,8 @@ window.CarCheckAI = (function () {
 
       ${vinBlock(r)}
       ${photoBlock(r)}
+
+      ${(r.notes || []).length ? `<div class="sub-line">Технічна примітка: ${esc(r.notes.join(" | "))}</div>` : ""}
 
       <div class="ai-grid">
         ${col("Тривожні ознаки", r.red_flags, "bad")}

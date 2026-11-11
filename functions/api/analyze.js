@@ -337,6 +337,7 @@ export async function onRequestPost({ request, env }) {
   // Запит до Claude. Якщо Anthropic не зміг завантажити фото чи вебпошук недоступний — повторюємо без них.
   let usePhotos = photos.length > 0, useSearch = search;
   let data = null, lastErr = null;
+  const notes = [];
   for (let attempt = 0; attempt < 3 && !data; attempt++) {
     const r1 = await callClaude({
       env, model, effort,
@@ -351,8 +352,15 @@ export async function onRequestPost({ request, env }) {
     if (r1.ok) { data = r1.data; break; }
     lastErr = r1;
     console.log("Anthropic API error", r1.status, r1.info);
-    if (r1.status === 400 && usePhotos && /image|url|download|fetch|media/i.test(r1.info)) { usePhotos = false; continue; }
-    if (r1.status === 400 && useSearch && /web_search|tool/i.test(r1.info)) { useSearch = false; continue; }
+    // Помилка запиту (400) з фото чи пошуком — прибираємо те, на що скаржиться API, і пробуємо ще раз,
+    // щоб користувач отримав хоча б аналіз тексту. Причину зберігаємо в результаті (notes).
+    if (r1.status === 400 && (usePhotos || useSearch)) {
+      const aboutImage = /image|url|download|fetch|media/i.test(r1.info);
+      const aboutTool = /web_search|tool|server|citation/i.test(r1.info);
+      if (usePhotos && (aboutImage || !aboutTool)) { usePhotos = false; notes.push("photos: " + r1.info.slice(0, 200)); }
+      else { useSearch = false; notes.push("search: " + r1.info.slice(0, 200)); }
+      continue;
+    }
     break;
   }
   if (!data) {
@@ -450,6 +458,8 @@ export async function onRequestPost({ request, env }) {
     } : null,
     vin: vinInfo,
     photos: usePhotos ? photos : [],
+    photos_found: photos.length,
+    notes,
     ...rest,
     red_flags: (r.red_flags || []).slice(0, 6),
     good_signs: (r.good_signs || []).slice(0, 4),
