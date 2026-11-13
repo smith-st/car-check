@@ -5,6 +5,8 @@
   "name": "car-check",
   "main": "worker/index.js",
   "compatibility_date": "2025-09-01",
+  // .md-файли (prompts/rules.md) імпортуються в код як текст
+  "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
   "assets": {
     "directory": ".",
     "binding": "ASSETS"

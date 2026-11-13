@@ -18,6 +18,8 @@ import { fetchOtomoto } from "./otomoto.js";
 import { normalizeVin, findVinInText, decodeVin, compareVin, vinForPrompt } from "./vin.js";
 import { fromSpecs, fromText, canonModel } from "./match.js";
 import { cacheKey, cacheGet, cachePut, sha256 } from "../../worker/cache.js";
+// Додаткові правила аналізу — звичайний текстовий файл (див. "rules" у wrangler.jsonc)
+import RULES from "../../prompts/rules.md";
 
 const MAX_TEXT = 8000;        // максимальна довжина тексту оголошення
 const MAX_TOKENS = 8000;      // максимальна довжина відповіді Claude
@@ -74,7 +76,7 @@ const REPORT_SCHEMA = obj({
   listing_quality: obj({
     score: { type: "integer", description: "Наскільки повне й прозоре оголошення, від 1 до 10." },
     comment: str("1–2 речення: що добре описано, а що приховано."),
-    missing: arr({ type: "string" }, "Чого бракує в оголошенні (VIN, історія обслуговування, кількість власників тощо). До 6 пунктів.")
+    missing: arr({ type: "string" }, "Чого бракує в оголошенні (історія обслуговування, кількість власників тощо). До 6 пунктів.")
   }),
   technical_risks: arr(obj({
     severity: en(["high", "medium", "low"]),
@@ -150,7 +152,7 @@ function systemPrompt(K, subset, year, extra = {}) {
 - «sprowadzony» — пригнане з-за кордону; історія до ввезення невідома, ризик скручування пробігу.
 - «uszkodzony» / «po szkodzie» / «po kolizji» — пошкоджене / після ДТП; «na części» — на запчастини.
 - «bezwypadkowy» — заява продавця без доказів, якщо немає звіту за VIN.
-- «faktura VAT» — продає фірма, можна отримати рахунок; «umowa kupna-sprzedaży» — продає приватна особа.
+- «faktura VAT» — фактично продає фірма (навіть якщо оголошення від приватної особи), можна отримати рахунок; «umowa kupna-sprzedaży» — продає приватна особа.
 - «komis» — продає автомайданчик, часто перекупник.
 - «pierwszy właściciel w kraju» — перший власник у Польщі, а не взагалі.
 
@@ -169,7 +171,7 @@ ${extra.search ? `- Зроби до ${VIN_SEARCHES} пошуків в інтер
 - Знахідки (аукціон після ДТП, більший пробіг раніше) обов'язково врахуй у вердикті, тривожних ознаках і питаннях продавцю.` : "- Пошук в інтернеті зараз недоступний: findings — порожній список, у summary — лише розшифровка VIN."}
 - Розбіжності VIN з оголошенням — серйозна тривожна ознака.
 ` : `
-VIN не надано: vin_check.summary = "", vin_check.findings = []. Якщо у VIN немає в оголошенні — додай це в missing і порадь попросити VIN у продавця.
+VIN не надано: vin_check.summary = "", vin_check.findings = []. Відсутній VIN не є мінусом (див. ДОДАТКОВІ ПРАВИЛА) — лише порадь попросити VIN у продавця перед оглядом.
 `}${extra.photos ? `
 ФОТО: до оголошення додано ${extra.photos} фото, пронумерованих «Фото 1», «Фото 2»…
 - Опиши в photo_observations лише те, що справді видно: різний відтінок фарби на деталях, нерівні зазори, сліди ремонту, іржа, вм'ятини, знос салону, керма й сидінь (порівняй з пробігом), індикатори несправностей на панелі, пробіг на одометрі (чи збігається з оголошенням), стан шин, невідповідність фото й опису (колір, комплектація, інше авто).
@@ -186,7 +188,10 @@ ${catalogLines}
 ${engineLines}
 
 БАЗА ЗНАНЬ — КОРОБКИ:
-${gearboxLines}`;
+${gearboxLines}
+
+ДОДАТКОВІ ПРАВИЛА (мають пріоритет над усім вище):
+${RULES.trim()}`;
 }
 
 // ---------- Чи є авто в базі (без Claude) ----------
@@ -274,7 +279,7 @@ export async function onRequestPost({ request, env }) {
 
   // Кеш: те саме оголошення (ID на Otomoto або той самий текст) за останню добу — віддаємо готовий результат.
   // Без Claude, без витрат і без зменшення ліміту.
-  const dataVersion = (await sha256(kText)).slice(0, 12);
+  const dataVersion = (await sha256(kText + "\n" + RULES)).slice(0, 12); // база + правила: зміна будь-чого скидає кеш
   const modelAlias = MODELS[body.model] ? body.model : null;
   const model = modelAlias ? MODELS[modelAlias] : (env.CLAUDE_MODEL || DEFAULT_MODEL);
   // Необов'язковий рівень зусиль Claude: low | medium | high | xhigh (за замовчуванням — як у моделі)

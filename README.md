@@ -29,6 +29,7 @@ functions/api/match.js   — підбір версії авто з бази ко
 worker/index.js          — точка входу Cloudflare Worker (/api/analyze)
 worker/limiter.js        — обмеження кількості аналізів (Durable Object)
 worker/cache.js          — кеш результатів аналізу на 24 години (Durable Object)
+prompts/rules.md         — додаткові правила аналізу оголошень (додаються до інструкції Claude)
 wrangler.jsonc           — налаштування Cloudflare Worker
 ```
 
